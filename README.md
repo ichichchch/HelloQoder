@@ -2,6 +2,10 @@
 
 高性能电商购物车微服务，基于 Python + FastAPI + PostgreSQL 构建。
 
+## 文档
+
+- [使用Qoder进行Agentic Coding过程](Agent&Chat.md)
+
 ## 技术栈
 
 - **Python** 3.10+

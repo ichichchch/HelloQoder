@@ -1,12 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using NovelTTSApp.App.Services;
-using NovelTTSApp.Core.Interfaces;
-using NovelTTSApp.Infrastructure;
-using Serilog;
-using Serilog.Events;
-
-// Configure Serilog
+﻿// Configure Serilog
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
     .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)

@@ -1,8 +1,3 @@
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using NovelTTSApp.Infrastructure.Configuration;
-using NovelTTSApp.Infrastructure.Services;
-
 namespace NovelTTSApp.Infrastructure;
 
 /// <summary>

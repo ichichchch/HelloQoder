@@ -1,5 +1,3 @@
-using NovelTTSApp.Core.Entities;
-
 namespace NovelTTSApp.Core.Interfaces;
 
 /// <summary>

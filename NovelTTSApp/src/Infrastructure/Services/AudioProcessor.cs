@@ -1,8 +1,3 @@
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using NAudio.Wave;
-using NovelTTSApp.Infrastructure.Configuration;
-
 namespace NovelTTSApp.Infrastructure.Services;
 
 /// <summary>

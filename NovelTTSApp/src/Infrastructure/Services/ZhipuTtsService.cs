@@ -1,15 +1,3 @@
-using System.Net.Http.Json;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using Microsoft.Extensions.AI;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using NovelTTSApp.Infrastructure.Configuration;
-using Polly;
-using Polly.Retry;
-
 namespace NovelTTSApp.Infrastructure.Services;
 
 /// <summary>

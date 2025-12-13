@@ -1,7 +1,3 @@
-using Microsoft.Extensions.Logging;
-using NovelTTSApp.Core.Entities;
-using NovelTTSApp.Core.Interfaces;
-
 namespace NovelTTSApp.App.Services;
 
 /// <summary>

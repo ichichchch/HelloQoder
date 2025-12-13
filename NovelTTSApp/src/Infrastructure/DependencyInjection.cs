@@ -16,6 +16,7 @@ public static class DependencyInjection
         services.Configure<AISettings>(configuration.GetSection(AISettings.SectionName));
         services.Configure<BilibiliSettings>(configuration.GetSection(BilibiliSettings.SectionName));
         services.Configure<PathSettings>(configuration.GetSection(PathSettings.SectionName));
+        services.AddSingleton<IConfiguration>(configuration);
 
         // 注册HttpClient
         services.AddHttpClient<INovelReader, NovelReader>();

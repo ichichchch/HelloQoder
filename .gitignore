@@ -1,0 +1,20 @@
+﻿################################################################################
+# 此 .gitignore 文件已由 Microsoft(R) Visual Studio 自动创建。
+################################################################################
+
+/NovelTTSApp/src/App/bin/Debug/net10.0
+/NovelTTSApp/src/Core/bin/Debug/net10.0
+/NovelTTSApp/src/Core/obj/Debug/net10.0
+/NovelTTSApp/src/Infrastructure/bin/Debug/net10.0
+/NovelTTSApp/src/Infrastructure/obj/Debug/net10.0
+/NovelTTSApp/.vs/NovelTTSApp
+/NovelTTSApp/src/App/obj/Debug/net10.0
+/NovelTTSApp/src/App/obj/NovelTTSApp.App.csproj.nuget.dgspec.json
+/NovelTTSApp/src/App/obj/NovelTTSApp.App.csproj.nuget.dgspec.json
+/NovelTTSApp/src/App/obj/project.assets.json
+/NovelTTSApp/src/App/obj/project.nuget.cache
+/NovelTTSApp/src/Core/obj/NovelTTSApp.Core.csproj.nuget.dgspec.json
+/NovelTTSApp/src/Core/obj/project.nuget.cache
+/NovelTTSApp/src/Infrastructure/obj/NovelTTSApp.Infrastructure.csproj.nuget.dgspec.json
+/NovelTTSApp/src/Infrastructure/obj/project.assets.json
+/NovelTTSApp/src/Infrastructure/obj/project.nuget.cache

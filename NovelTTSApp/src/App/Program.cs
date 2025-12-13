@@ -22,7 +22,10 @@ try
 
     // Configure services
     var services = new ServiceCollection();
-    
+
+    //Add configuration
+    services.AddSingleton<IConfiguration>(configuration);
+
     // Add logging
     services.AddLogging(builder => builder.AddSerilog(dispose: true));
     

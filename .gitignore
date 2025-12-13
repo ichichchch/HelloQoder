@@ -18,3 +18,14 @@
 /NovelTTSApp/src/Infrastructure/obj/NovelTTSApp.Infrastructure.csproj.nuget.dgspec.json
 /NovelTTSApp/src/Infrastructure/obj/project.assets.json
 /NovelTTSApp/src/Infrastructure/obj/project.nuget.cache
+NovelTTSApp/.vs/ProjectEvaluation/novelttsapp.metadata.v10.bin
+NovelTTSApp/.vs/ProjectEvaluation/novelttsapp.projects.v10.bin
+NovelTTSApp/.vs/ProjectEvaluation/novelttsapp.strings.v10.bin
+/EpubToSplitTxt/bin/Debug/net9.0
+/EpubToSplitTxt/obj/Debug/net9.0
+*.cache
+*.targets
+/EpubToSplitTxt/obj/EpubToSplitTxt.csproj.nuget.g.props
+/EpubToSplitTxt/obj/EpubToSplitTxt.csproj.nuget.dgspec.json
+/EpubToSplitTxt/obj
+/EpubToSplitTxt/.vs/EpubToSplitTxt

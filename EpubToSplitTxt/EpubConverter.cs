@@ -21,22 +21,44 @@ public class EpubConverter
         var textBuilder = new StringBuilder();
         int chapterCount = 0;
 
-        // 按阅读顺序遍历所有章节
+        // 优先使用 ReadingOrder
         var readingOrder = book.ReadingOrder;
         
-        foreach (var contentFile in readingOrder)
+        if (readingOrder != null && readingOrder.Count > 0)
         {
-            // 提取 HTML 内容
-            string htmlContent = contentFile.Content;
-            
-            // 使用 HtmlAgilityPack 清洗 HTML
-            string cleanText = SanitizeHtml(htmlContent);
-            
-            if (!string.IsNullOrWhiteSpace(cleanText))
+            foreach (var contentFile in readingOrder)
             {
-                textBuilder.AppendLine(cleanText);
-                textBuilder.AppendLine(); // 章节之间添加空行
-                chapterCount++;
+                string htmlContent = contentFile.Content;
+                string cleanText = SanitizeHtml(htmlContent);
+                
+                if (!string.IsNullOrWhiteSpace(cleanText))
+                {
+                    textBuilder.AppendLine(cleanText);
+                    textBuilder.AppendLine();
+                    chapterCount++;
+                }
+            }
+        }
+        else
+        {
+            // 备用方案：从 Content.Html 读取所有 HTML 文件
+            Console.WriteLine("[INFO] ReadingOrder 为空，尝试从 HTML 内容读取...");
+            
+            var htmlFiles = book.Content.Html.Local;
+            if (htmlFiles != null)
+            {
+                foreach (var htmlFile in htmlFiles)
+                {
+                    string htmlContent = htmlFile.Value.Content;
+                    string cleanText = SanitizeHtml(htmlContent);
+                    
+                    if (!string.IsNullOrWhiteSpace(cleanText))
+                    {
+                        textBuilder.AppendLine(cleanText);
+                        textBuilder.AppendLine();
+                        chapterCount++;
+                    }
+                }
             }
         }
 
@@ -72,12 +94,11 @@ public class EpubConverter
         var doc = new HtmlDocument();
         doc.LoadHtml(html);
 
-        // 提取纯文本
-        var textBuilder = new StringBuilder();
-        ExtractTextFromNode(doc.DocumentNode, textBuilder);
-
+        // 直接使用 InnerText 提取所有文本
+        string text = doc.DocumentNode.InnerText;
+        
         // 转换 HTML 实体
-        string text = HtmlEntity.DeEntitize(textBuilder.ToString());
+        text = HtmlEntity.DeEntitize(text);
 
         // 清理多余的空白字符
         text = CleanWhitespace(text);

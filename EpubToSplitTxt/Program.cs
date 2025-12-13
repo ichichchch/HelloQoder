@@ -30,7 +30,10 @@ class Program
 
             // 初始化组件
             var converter = new EpubConverter();
-            var splitter = new TextSplitter(config.Splitter.ChapterRegex, config.Splitter.MinChapterLength);
+            var splitter = new TextSplitter(
+                config.Splitter.ChapterRegex, 
+                config.Splitter.SectionRegex,
+                config.Splitter.MinChapterLength);
 
             // 处理每个 Epub 文件
             foreach (var epubPath in epubFiles)
@@ -53,15 +56,34 @@ class Program
     /// </summary>
     private static AppSettings LoadConfiguration()
     {
+        var basePath = AppContext.BaseDirectory;
+        
         var configuration = new ConfigurationBuilder()
-            .SetBasePath(Directory.GetCurrentDirectory())
+            .SetBasePath(basePath)
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
             .Build();
 
         var settings = new AppSettings();
         configuration.Bind(settings);
 
+        // 将相对路径转换为绝对路径（基于程序所在目录）
+        settings.Paths.RawEpubFolder = GetAbsolutePath(basePath, settings.Paths.RawEpubFolder);
+        settings.Paths.IntermediateTxtFolder = GetAbsolutePath(basePath, settings.Paths.IntermediateTxtFolder);
+        settings.Paths.SplitOutputFolder = GetAbsolutePath(basePath, settings.Paths.SplitOutputFolder);
+
         return settings;
+    }
+
+    /// <summary>
+    /// 将相对路径转换为绝对路径
+    /// </summary>
+    private static string GetAbsolutePath(string basePath, string path)
+    {
+        if (Path.IsPathRooted(path))
+        {
+            return path;
+        }
+        return Path.GetFullPath(Path.Combine(basePath, path));
     }
 
     /// <summary>

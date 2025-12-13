@@ -22,9 +22,14 @@ public class AppSettings
 public class SplitterConfig
 {
     /// <summary>
-    /// 章节标题匹配正则表达式
+    /// 章标题匹配正则表达式
     /// </summary>
     public string ChapterRegex { get; set; } = string.Empty;
+
+    /// <summary>
+    /// 节标题匹配正则表达式
+    /// </summary>
+    public string SectionRegex { get; set; } = string.Empty;
 
     /// <summary>
     /// 最小章节长度（字符数）

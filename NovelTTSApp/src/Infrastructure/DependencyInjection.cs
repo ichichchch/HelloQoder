@@ -23,8 +23,8 @@ public static class DependencyInjection
         services.AddHttpClient<IBilibiliDownloader, BilibiliDownloader>();
 
         // 注册服务
-        services.AddSingleton<ITextSegmenter, TextSegmenter>();
-        services.AddSingleton<IAudioProcessor, AudioProcessor>();
+        services.AddScoped<ITextSegmenter, TextSegmenter>();
+        services.AddScoped<IAudioProcessor, AudioProcessor>();
 
         return services;
     }

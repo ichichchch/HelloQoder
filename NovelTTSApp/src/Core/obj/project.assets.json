@@ -54,11 +54,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\HomeCode\\HelloQoder\\NovelTTSApp\\src\\Core\\NovelTTSApp.Core.csproj",
+      "projectUniqueName": "d:\\HomeCode\\HelloQoder\\NovelTTSApp\\src\\Core\\NovelTTSApp.Core.csproj",
       "projectName": "NovelTTSApp.Core",
-      "projectPath": "D:\\HomeCode\\HelloQoder\\NovelTTSApp\\src\\Core\\NovelTTSApp.Core.csproj",
+      "projectPath": "d:\\HomeCode\\HelloQoder\\NovelTTSApp\\src\\Core\\NovelTTSApp.Core.csproj",
       "packagesPath": "C:\\Users\\ichis\\.nuget\\packages\\",
-      "outputPath": "D:\\HomeCode\\HelloQoder\\NovelTTSApp\\src\\Core\\obj\\",
+      "outputPath": "d:\\HomeCode\\HelloQoder\\NovelTTSApp\\src\\Core\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "D:\\Visual Studio Data\\SDK\\NuGetPackages"
@@ -118,7 +118,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.100/PortableRuntimeIdentifierGraph.json",
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.101/PortableRuntimeIdentifierGraph.json",
         "packagesToPrune": {
           "Microsoft.CSharp": "(,4.7.32767]",
           "Microsoft.VisualBasic": "(,10.4.32767]",

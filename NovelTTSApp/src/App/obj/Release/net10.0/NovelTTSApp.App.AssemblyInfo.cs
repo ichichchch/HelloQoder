@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("NovelTTSApp.App")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d6a20d9b0f129d05cc2693110260e9c9ba70d605")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+91a6ea6dcd15b15f1c15e1e8881a1922df35e2cf")]
 [assembly: System.Reflection.AssemblyProductAttribute("NovelTTSApp.App")]
 [assembly: System.Reflection.AssemblyTitleAttribute("NovelTTSApp.App")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

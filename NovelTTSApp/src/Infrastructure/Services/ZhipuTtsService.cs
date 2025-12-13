@@ -12,14 +12,16 @@ public class ZhipuTtsService(
     private readonly AISettings _aiSettings = aiSettings.Value;
     private readonly PathSettings _pathSettings = pathSettings.Value;
 
-    // Polly重试策略
+    // Polly重试策略 - 包含 HTTP 429 处理
     private readonly ResiliencePipeline _resiliencePipeline = new ResiliencePipelineBuilder()
         .AddRetry(new RetryStrategyOptions
         {
             MaxRetryAttempts = 3,
             Delay = TimeSpan.FromSeconds(2),
             BackoffType = DelayBackoffType.Exponential,
-            ShouldHandle = new PredicateBuilder().Handle<HttpRequestException>()
+            ShouldHandle = new PredicateBuilder()
+                .Handle<HttpRequestException>()
+                .Handle<TaskCanceledException>()
         })
         .Build();
 
@@ -80,7 +82,7 @@ public class ZhipuTtsService(
     {
         logger.LogInformation("Streaming speech generation for text length: {Length}", text.Length);
 
-        var request = CreateTtsRequest(text, voiceReference, stream: true);
+        var request = await CreateTtsRequestAsync(text, voiceReference, stream: true, cancellationToken);
         
         using var requestMessage = new HttpRequestMessage(HttpMethod.Post, $"{_aiSettings.Endpoint}audio/speech");
         requestMessage.Headers.Add("Authorization", $"Bearer {_aiSettings.ApiKey}");
@@ -106,7 +108,7 @@ public class ZhipuTtsService(
         VoiceReference? voiceReference,
         CancellationToken cancellationToken)
     {
-        var request = CreateTtsRequest(text, voiceReference);
+        var request = await CreateTtsRequestAsync(text, voiceReference, cancellationToken: cancellationToken);
 
         using var requestMessage = new HttpRequestMessage(HttpMethod.Post, $"{_aiSettings.Endpoint}audio/speech");
         requestMessage.Headers.Add("Authorization", $"Bearer {_aiSettings.ApiKey}");
@@ -124,7 +126,7 @@ public class ZhipuTtsService(
         return await response.Content.ReadAsByteArrayAsync(cancellationToken);
     }
 
-    private ZhipuTtsRequest CreateTtsRequest(string text, VoiceReference? voiceReference, bool stream = false)
+    private async Task<ZhipuTtsRequest> CreateTtsRequestAsync(string text, VoiceReference? voiceReference, bool stream = false, CancellationToken cancellationToken = default)
     {
         var request = new ZhipuTtsRequest
         {
@@ -136,7 +138,7 @@ public class ZhipuTtsService(
         // If voice reference is provided, use voice cloning
         if (voiceReference != null && File.Exists(voiceReference.AudioFilePath))
         {
-            var audioBytes = File.ReadAllBytes(voiceReference.AudioFilePath);
+            var audioBytes = await File.ReadAllBytesAsync(voiceReference.AudioFilePath, cancellationToken);
             request.ReferenceAudio = Convert.ToBase64String(audioBytes);
         }
 

@@ -1,0 +1,16 @@
+d:\HomeCode\HelloQoder\NovelTTSApp\src\Infrastructure\obj\Release\net10.0\NovelTTSApp.Infrastructure.csproj.AssemblyReference.cache
+d:\HomeCode\HelloQoder\NovelTTSApp\src\Infrastructure\obj\Release\net10.0\NovelTTSApp.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+d:\HomeCode\HelloQoder\NovelTTSApp\src\Infrastructure\obj\Release\net10.0\NovelTTSApp.Infrastructure.AssemblyInfoInputs.cache
+d:\HomeCode\HelloQoder\NovelTTSApp\src\Infrastructure\obj\Release\net10.0\NovelTTSApp.Infrastructure.AssemblyInfo.cs
+d:\HomeCode\HelloQoder\NovelTTSApp\src\Infrastructure\obj\Release\net10.0\NovelTTSApp.Infrastructure.csproj.CoreCompileInputs.cache
+d:\HomeCode\HelloQoder\NovelTTSApp\src\Infrastructure\obj\Release\net10.0\NovelTTSApp.Infrastructure.sourcelink.json
+d:\HomeCode\HelloQoder\NovelTTSApp\src\Infrastructure\bin\Release\net10.0\NovelTTSApp.Infrastructure.deps.json
+d:\HomeCode\HelloQoder\NovelTTSApp\src\Infrastructure\bin\Release\net10.0\NovelTTSApp.Infrastructure.dll
+d:\HomeCode\HelloQoder\NovelTTSApp\src\Infrastructure\bin\Release\net10.0\NovelTTSApp.Infrastructure.pdb
+d:\HomeCode\HelloQoder\NovelTTSApp\src\Infrastructure\bin\Release\net10.0\NovelTTSApp.Core.dll
+d:\HomeCode\HelloQoder\NovelTTSApp\src\Infrastructure\bin\Release\net10.0\NovelTTSApp.Core.pdb
+d:\HomeCode\HelloQoder\NovelTTSApp\src\Infrastructure\obj\Release\net10.0\NovelTTS.A17DDAC2.Up2Date
+d:\HomeCode\HelloQoder\NovelTTSApp\src\Infrastructure\obj\Release\net10.0\NovelTTSApp.Infrastructure.dll
+d:\HomeCode\HelloQoder\NovelTTSApp\src\Infrastructure\obj\Release\net10.0\refint\NovelTTSApp.Infrastructure.dll
+d:\HomeCode\HelloQoder\NovelTTSApp\src\Infrastructure\obj\Release\net10.0\NovelTTSApp.Infrastructure.pdb
+d:\HomeCode\HelloQoder\NovelTTSApp\src\Infrastructure\obj\Release\net10.0\ref\NovelTTSApp.Infrastructure.dll

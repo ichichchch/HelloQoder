@@ -1,0 +1,13 @@
+d:\HomeCode\HelloQoder\NovelTTSApp\src\Core\bin\Release\net10.0\NovelTTSApp.Core.deps.json
+d:\HomeCode\HelloQoder\NovelTTSApp\src\Core\bin\Release\net10.0\NovelTTSApp.Core.dll
+d:\HomeCode\HelloQoder\NovelTTSApp\src\Core\bin\Release\net10.0\NovelTTSApp.Core.pdb
+d:\HomeCode\HelloQoder\NovelTTSApp\src\Core\obj\Release\net10.0\NovelTTSApp.Core.csproj.AssemblyReference.cache
+d:\HomeCode\HelloQoder\NovelTTSApp\src\Core\obj\Release\net10.0\NovelTTSApp.Core.GeneratedMSBuildEditorConfig.editorconfig
+d:\HomeCode\HelloQoder\NovelTTSApp\src\Core\obj\Release\net10.0\NovelTTSApp.Core.AssemblyInfoInputs.cache
+d:\HomeCode\HelloQoder\NovelTTSApp\src\Core\obj\Release\net10.0\NovelTTSApp.Core.AssemblyInfo.cs
+d:\HomeCode\HelloQoder\NovelTTSApp\src\Core\obj\Release\net10.0\NovelTTSApp.Core.csproj.CoreCompileInputs.cache
+d:\HomeCode\HelloQoder\NovelTTSApp\src\Core\obj\Release\net10.0\NovelTTSApp.Core.sourcelink.json
+d:\HomeCode\HelloQoder\NovelTTSApp\src\Core\obj\Release\net10.0\NovelTTSApp.Core.dll
+d:\HomeCode\HelloQoder\NovelTTSApp\src\Core\obj\Release\net10.0\refint\NovelTTSApp.Core.dll
+d:\HomeCode\HelloQoder\NovelTTSApp\src\Core\obj\Release\net10.0\NovelTTSApp.Core.pdb
+d:\HomeCode\HelloQoder\NovelTTSApp\src\Core\obj\Release\net10.0\ref\NovelTTSApp.Core.dll

@@ -1,10 +1,22 @@
-# Epub 转文本与章节切分系统
+# EpubToSplitTxt
 
-一个专用的 Epub 电子书预处理系统，将 `.epub` 格式电子书转换为纯文本并按章节智能切分为独立的 TXT 文件。
+<div align="center">
+
+![.NET](https://img.shields.io/badge/.NET-9.0-512BD4?style=flat-square&logo=dotnet)
+![C#](https://img.shields.io/badge/C%23-13.0-239120?style=flat-square&logo=csharp)
+![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)
+
+**Epub 电子书转文本与章节切分系统**
+
+*将 `.epub` 格式电子书转换为纯文本并按章节智能切分为独立 TXT 文件*
 
 - **开发过程记录**: [Agent&Chat.md](./docs/Agent&Chat.md)
 
-## 功能特性
+</div>
+
+---
+
+## ✨ 功能特性
 
 - ✅ 自动解析 Epub 文件结构并提取纯文本
 - ✅ 智能识别章节标题（支持中文、英文格式）
@@ -14,14 +26,20 @@
 - ✅ 流式处理大文件，内存占用低
 - ✅ 可配置的章节匹配规则
 
-## 技术栈
+---
 
-- .NET 9.0
-- VersOne.Epub 3.3.0（Epub 解析）
-- HtmlAgilityPack 1.11.59（HTML 清洗）
-- Microsoft.Extensions.Configuration（配置管理）
+## 🛠️ 技术栈
 
-## 快速开始
+| 库 | 版本 | 用途 |
+|----|------|------|
+| .NET | 9.0 | 运行时环境 |
+| VersOne.Epub | 3.3.0 | Epub 文件解析 |
+| HtmlAgilityPack | 1.11.59 | HTML 内容清洗 |
+| Microsoft.Extensions.Configuration | - | 配置管理 |
+
+---
+
+## 🚀 快速开始
 
 ### 1. 编译项目
 
@@ -65,7 +83,9 @@ EpubToSplitTxt/
 │       └── ...
 ```
 
-## 配置说明
+---
+
+## ⚙️ 配置说明
 
 配置文件：`appsettings.json`
 
@@ -93,7 +113,9 @@ EpubToSplitTxt/
 | `Paths:IntermediateTxtFolder` | 全本文本中间文件目录 | `./IntermediateTxt` |
 | `Paths:SplitOutputFolder` | 章节切分输出目录 | `./SplitOutput` |
 
-## 章节格式支持
+---
+
+## 📑 章节格式支持
 
 默认支持以下章节标题格式：
 
@@ -104,7 +126,9 @@ EpubToSplitTxt/
 
 如需支持其他格式，可修改 `appsettings.json` 中的 `ChapterRegex` 配置。
 
-## 处理流程
+---
+
+## 📊 处理流程
 
 ```
 [Epub 文件]
@@ -120,27 +144,35 @@ EpubToSplitTxt/
 [章节文件集] 按序列号输出独立文件
 ```
 
-## 日志说明
+---
+
+## 📝 日志说明
 
 - `[INFO]`：正常处理信息（解析进度、统计数据）
 - `[WARN]`：警告信息（章节过小、未匹配到章节等）
 - `[ERROR]`：错误信息（文件损坏、I/O 错误等）
 
-## 性能优化
+---
+
+## ⚡ 性能优化
 
 - ✅ 使用预编译正则表达式（`RegexOptions.Compiled`）
 - ✅ 流式读取大文本文件（`StreamReader`）
 - ✅ 避免一次性加载全文到内存
 - ✅ UTF-8 无 BOM 编码，减少文件体积
 
-## 注意事项
+---
+
+## ⚠️ 注意事项
 
 1. **编码**：所有输出文件使用 UTF-8 无 BOM 编码
 2. **文件名**：自动清洗非法字符，替换为下划线
 3. **目录结构**：每本书创建独立子文件夹，避免混淆
 4. **正则超时**：章节匹配设置 1 秒超时，防止回溯陷阱
 
-## 系统架构
+---
+
+## 🏗️ 系统架构
 
 ### 核心组件
 
@@ -157,7 +189,9 @@ Program.cs
    └── AppSettings (Microsoft.Extensions.Configuration)
 ```
 
-## 扩展开发
+---
+
+## 🔧 扩展开发
 
 ### 自定义章节匹配规则
 
@@ -175,16 +209,22 @@ Program.cs
 
 在 `TextSplitter.cs` 中修改 `SplitTextAsync` 方法，支持输出为其他格式（如 Markdown）。
 
-## 许可证
+---
+
+## 📄 许可证
 
 本项目仅供个人学习和研究使用，请遵守相关版权法律法规。
 
-## 贡献
+---
+
+## 🤝 贡献
 
 欢迎提交 Issue 和 Pull Request！
 
 ---
 
-**开发者**: Qoder AI Assistant  
-**版本**: 1.0.0  
-**最后更新**: 2025-12-13
+<div align="center">
+
+**Made with ❤️ using .NET 9 and VersOne.Epub**
+
+</div>

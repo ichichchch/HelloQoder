@@ -8,7 +8,7 @@
 
 **将小说文本转换为有声书的 AI 应用程序**
 
-*使用智谱 GLM-4-Voice 实现高质量文本转语音，支持从 Bilibili 提取参考音频进行声音克隆*
+*使用智谱 GLM-TTS 实现高质量语音合成，支持 Bilibili 音频声音克隆*
 
 </div>
 
@@ -18,8 +18,8 @@
 
 - 📖 **小说文本读取** - 支持 `.txt`、`.md` 文件，支持从 URL 抓取内容
 - 🎯 **智能文本分段** - 自动将长文本分割为适合 TTS 的片段
-- 🎙️ **AI 语音合成** - 基于智谱 GLM-4-Voice 的高质量语音生成
-- 🎭 **声音克隆** - 从 Bilibili 视频提取参考音频实现声音克隆
+- 🎙️ **AI 语音合成** - 基于智谱 GLM-TTS 的高质量语音生成
+- 🎭 **声音克隆** - 从 Bilibili 视频提取参考音频，通过 GLM-TTS-Clone 实现音色克隆
 - 🎵 **音频处理** - 使用 NAudio 进行音频合并、格式转换
 - 🔄 **智能重试** - 使用 Polly 处理 API 调用失败的重试机制
 - 📊 **进度追踪** - 实时显示处理进度
@@ -91,6 +91,12 @@ cd NovelTTSApp
     "Endpoint": "https://open.bigmodel.cn/api/paas/v4/",
     "ApiKey": "YOUR_API_KEY_HERE",
     "ModelId": "glm-4-voice"
+  },
+  "Paths": {
+    "InputFolder": "./data/novels",
+    "OutputFolder": "./data/output",
+    "ReferenceAudioFolder": "./data/reference_audio",
+    "TempFolder": "./data/temp"
   }
 }
 ```
@@ -117,6 +123,7 @@ NovelTTSApp [options]
 选项:
     -i, --input <path>     输入小说文件路径 (.txt 或 .md)
     -o, --output <path>    输出音频文件路径 (.mp3)
+    -c, --chapter <name>   章节过滤关键词
     -v, --voice <url>      用于声音克隆的 Bilibili 视频 URL (可选)
     -h, --help             显示帮助信息
 ```
@@ -125,50 +132,48 @@ NovelTTSApp [options]
 
 ```bash
 # 处理默认输入文件夹中的所有小说
-NovelTTSApp
+dotnet run --project src/App
 
-# 处理单个小说文件
-NovelTTSApp -i ./mynovel.txt -o ./mynovel.mp3
+# 处理特定章节
+dotnet run --project src/App -- -c "第一章"
 
 # 使用 Bilibili 视频进行声音克隆
-NovelTTSApp -i ./novel.txt -v https://www.bilibili.com/video/BV1xxxxxxxx
+dotnet run --project src/App -- -c "第一章" -v https://www.bilibili.com/video/BV1xxxxxxxx
+
+# 处理单个小说文件
+dotnet run --project src/App -- -i ./mynovel.txt -o ./mynovel.mp3
 ```
 
 ---
 
-## ⚙️ 配置说明
+## 🎭 声音克隆
 
-### appsettings.json
+声音克隆功能通过智谱 GLM-TTS-Clone API 实现，完整流程：
 
-```json
-{
-  "AI": {
-    "Endpoint": "https://open.bigmodel.cn/api/paas/v4/",
-    "ApiKey": "YOUR_API_KEY",
-    "ModelId": "glm-4-voice"
-  },
-  "Bilibili": {
-    "Cookie": ""
-  },
-  "Paths": {
-    "InputFolder": "./data/novels",
-    "OutputFolder": "./data/output",
-    "ReferenceAudioFolder": "./data/reference_audio",
-    "TempFolder": "./data/temp"
-  }
-}
+```
+1. 从 Bilibili 视频下载并提取参考音频（10秒片段）
+2. 上传音频至智谱 API 获取 file_id（purpose: voice-clone-input）
+3. 调用 voice/clone 创建音色 → 获得 voice_id
+4. 使用 voice_id 调用 GLM-TTS 生成克隆语音
 ```
 
-### 配置项说明
+> 📚 参考文档：[GLM-TTS-Clone](https://docs.bigmodel.cn/cn/guide/models/sound-and-video/glm-tts-clone)
 
-| 配置项 | 说明 |
-|--------|------|
-| `AI:Endpoint` | 智谱 API 端点地址 |
-| `AI:ApiKey` | 智谱 API 密钥 |
-| `AI:ModelId` | 使用的模型 ID |
-| `Bilibili:Cookie` | B站 Cookie（可选，用于获取高清音频） |
-| `Paths:InputFolder` | 小说文件输入目录 |
-| `Paths:OutputFolder` | 音频输出目录 |
+---
+
+## 📁 数据目录结构
+
+```
+data/
+├── novels/              # 小说文本源文件
+│   └── 蛊真人/
+│       └── 01.第一章：前言/
+│           ├── 001.前言.txt
+│           └── 002.内容简介....txt
+├── output/              # 生成的有声书文件
+├── reference_audio/     # B站提取的参考音频素材
+└── temp/                # 临时音频片段文件
+```
 
 ---
 
@@ -192,6 +197,7 @@ NovelTTSApp -i ./novel.txt -v https://www.bilibili.com/video/BV1xxxxxxxx
 │                 │     │                 │     │                 │
 │ • 读取小说文件  │     │ • 文本清洗      │     │ • 调用智谱 API  │
 │ • B站音频提取   │     │ • 智能分段      │     │ • 流式处理      │
+│ • 声音克隆准备  │     │ • 音色克隆      │     │ • 语音生成      │
 └─────────────────┘     └─────────────────┘     └────────┬────────┘
                                                          │
                                                          ▼
@@ -219,6 +225,6 @@ NovelTTSApp -i ./novel.txt -v https://www.bilibili.com/video/BV1xxxxxxxx
 
 <div align="center">
 
-**Made with ❤️ using .NET 10 and AI**
+**Made with ❤️ using .NET 10 and Zhipu AI**
 
 </div>

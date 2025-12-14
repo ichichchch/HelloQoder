@@ -2,6 +2,8 @@ namespace NovelTTSApp.Infrastructure.Services;
 
 /// <summary>
 /// 智谱 GLM-4-Voice TTS服务实现
+/// 使用 chat/completions 端点进行语音生成
+/// 支持音色复刻功能
 /// </summary>
 public class ZhipuTtsService(
     ILogger<ZhipuTtsService> logger,
@@ -11,6 +13,10 @@ public class ZhipuTtsService(
 {
     private readonly AISettings _aiSettings = aiSettings.Value;
     private readonly PathSettings _pathSettings = pathSettings.Value;
+    
+    // 缓存已克隆的音色ID，避免重复克隆
+    private string? _cachedVoiceId;
+    private bool _cloneAttempted = false;
 
     // Polly重试策略 - 包含 HTTP 429 处理
     private readonly ResiliencePipeline _resiliencePipeline = new ResiliencePipelineBuilder()
@@ -51,8 +57,8 @@ public class ZhipuTtsService(
                 return await CallZhipuTtsApiAsync(text, voiceReference, ct);
             }, cancellationToken);
 
-            // Save audio to file
-            var fileName = $"segment_{segmentIndex:D4}_{Guid.NewGuid():N}.mp3";
+            // Save audio to file (WAV format from GLM-4-Voice)
+            var fileName = $"segment_{segmentIndex:D4}_{Guid.NewGuid():N}.wav";
             var filePath = Path.Combine(_pathSettings.TempFolder, fileName);
             
             await File.WriteAllBytesAsync(filePath, audioData, cancellationToken);
@@ -82,24 +88,56 @@ public class ZhipuTtsService(
     {
         logger.LogInformation("Streaming speech generation for text length: {Length}", text.Length);
 
-        var request = await CreateTtsRequestAsync(text, voiceReference, stream: true, cancellationToken);
+        // Get cloned voice ID if voice reference is provided
+        string? voiceId = null;
+        if (voiceReference != null && File.Exists(voiceReference.AudioFilePath))
+        {
+            voiceId = await GetOrCreateClonedVoiceAsync(voiceReference, cancellationToken);
+        }
+
+        // GLM-TTS streaming via audio/speech endpoint
+        var ttsRequest = new
+        {
+            model = "glm-tts",
+            input = text,
+            voice = string.IsNullOrEmpty(voiceId) ? "female" : voiceId,
+            speed = 1.0,
+            volume = 1.0,
+            response_format = "pcm",
+            encode_format = "base64",
+            stream = true
+        };
         
         using var requestMessage = new HttpRequestMessage(HttpMethod.Post, $"{_aiSettings.Endpoint}audio/speech");
         requestMessage.Headers.Add("Authorization", $"Bearer {_aiSettings.ApiKey}");
-        requestMessage.Content = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
+        requestMessage.Content = new StringContent(JsonSerializer.Serialize(ttsRequest), Encoding.UTF8, "application/json");
 
         using var response = await httpClient.SendAsync(requestMessage, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
         response.EnsureSuccessStatusCode();
 
         await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
-        var buffer = new byte[8192];
-        int bytesRead;
+        using var reader = new StreamReader(stream);
 
-        while ((bytesRead = await stream.ReadAsync(buffer, cancellationToken)) > 0)
+        while (!reader.EndOfStream)
         {
-            var chunk = new byte[bytesRead];
-            Array.Copy(buffer, chunk, bytesRead);
-            yield return chunk;
+            var line = await reader.ReadLineAsync(cancellationToken);
+            if (string.IsNullOrEmpty(line) || !line.StartsWith("data:"))
+                continue;
+
+            var jsonData = line[5..].Trim();
+            if (string.IsNullOrEmpty(jsonData))
+                continue;
+
+            var streamResponse = JsonSerializer.Deserialize<GlmTtsStreamResponse>(jsonData);
+            var content = streamResponse?.Choices?.FirstOrDefault()?.Delta?.Content;
+            
+            if (!string.IsNullOrEmpty(content))
+            {
+                yield return Convert.FromBase64String(content);
+            }
+
+            if (streamResponse?.Choices?.FirstOrDefault()?.FinishReason == "stop")
+                break;
         }
     }
 
@@ -108,11 +146,32 @@ public class ZhipuTtsService(
         VoiceReference? voiceReference,
         CancellationToken cancellationToken)
     {
-        var request = await CreateTtsRequestAsync(text, voiceReference, cancellationToken: cancellationToken);
+        // Step 1: If voice reference is provided and not yet cloned, call voice clone API first
+        string? voiceId = null;
+        if (voiceReference != null && File.Exists(voiceReference.AudioFilePath))
+        {
+            voiceId = await GetOrCreateClonedVoiceAsync(voiceReference, cancellationToken);
+        }
+
+        // Step 2: Call GLM-TTS API (audio/speech endpoint)
+        var ttsRequest = new
+        {
+            model = "glm-tts",
+            input = text,
+            voice = string.IsNullOrEmpty(voiceId) ? "female" : voiceId,
+            speed = 1.0,
+            volume = 1.0,
+            response_format = "wav"
+        };
+
+        if (!string.IsNullOrEmpty(voiceId))
+        {
+            logger.LogInformation("Using cloned voice_id: {VoiceId}", voiceId);
+        }
 
         using var requestMessage = new HttpRequestMessage(HttpMethod.Post, $"{_aiSettings.Endpoint}audio/speech");
         requestMessage.Headers.Add("Authorization", $"Bearer {_aiSettings.ApiKey}");
-        requestMessage.Content = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
+        requestMessage.Content = new StringContent(JsonSerializer.Serialize(ttsRequest), Encoding.UTF8, "application/json");
 
         using var response = await httpClient.SendAsync(requestMessage, cancellationToken);
         
@@ -123,59 +182,209 @@ public class ZhipuTtsService(
             throw new HttpRequestException($"TTS API returned {response.StatusCode}: {errorContent}");
         }
 
-        return await response.Content.ReadAsByteArrayAsync(cancellationToken);
+        // Response is binary audio data (WAV format)
+        var audioData = await response.Content.ReadAsByteArrayAsync(cancellationToken);
+        return audioData;
     }
 
-    private async Task<ZhipuTtsRequest> CreateTtsRequestAsync(string text, VoiceReference? voiceReference, bool stream = false, CancellationToken cancellationToken = default)
+    /// <summary>
+    /// 获取或创建克隆音色
+    /// </summary>
+    private async Task<string> GetOrCreateClonedVoiceAsync(
+        VoiceReference voiceReference,
+        CancellationToken cancellationToken)
     {
-        var request = new ZhipuTtsRequest
+        // Return cached voice ID if available
+        if (!string.IsNullOrEmpty(_cachedVoiceId))
         {
-            Model = _aiSettings.ModelId,
-            Input = text,
-            Stream = stream
-        };
-
-        // If voice reference is provided, use voice cloning
-        if (voiceReference != null && File.Exists(voiceReference.AudioFilePath))
-        {
-            var audioBytes = await File.ReadAllBytesAsync(voiceReference.AudioFilePath, cancellationToken);
-            request.ReferenceAudio = Convert.ToBase64String(audioBytes);
+            logger.LogInformation("Using cached cloned voice: {VoiceId}", _cachedVoiceId);
+            return _cachedVoiceId;
         }
 
-        return request;
+        // If we already tried and failed, don't retry
+        if (_cloneAttempted)
+        {
+            return string.Empty;
+        }
+        _cloneAttempted = true;
+
+        logger.LogInformation("Creating cloned voice from reference audio: {Path}", voiceReference.AudioFilePath);
+
+        // Step 1: Upload audio file to get file_id
+        var fileId = await UploadAudioFileAsync(voiceReference.AudioFilePath, cancellationToken);
+        if (string.IsNullOrEmpty(fileId))
+        {
+            logger.LogWarning("Failed to upload audio file. Falling back to default voice.");
+            return string.Empty;
+        }
+
+        // Step 2: Call voice clone API with file_id
+        var uniqueVoiceName = $"v{DateTime.UtcNow:yyMMddHHmmss}{Guid.NewGuid():N}"[..30];
+        var cloneRequest = new
+        {
+            model = "glm-tts-clone",
+            voice_name = uniqueVoiceName,
+            file_id = fileId,
+            text = "你好，这是一段示例音频的文本内容，用于音色复刻参考。",
+            input = "欢迎使用我们的音色复刻服务，这将生成与示例音频相同音色的语音。"
+        };
+
+        using var requestMessage = new HttpRequestMessage(HttpMethod.Post, $"{_aiSettings.Endpoint}voice/clone");
+        requestMessage.Headers.Add("Authorization", $"Bearer {_aiSettings.ApiKey}");
+        requestMessage.Content = new StringContent(JsonSerializer.Serialize(cloneRequest), Encoding.UTF8, "application/json");
+
+        using var response = await httpClient.SendAsync(requestMessage, cancellationToken);
+        var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            logger.LogWarning("Voice clone API failed: {StatusCode} - {Content}. Falling back to default voice.", 
+                response.StatusCode, responseContent);
+            return string.Empty;
+        }
+
+        // Parse response to get voice_id
+        var cloneResponse = JsonSerializer.Deserialize<VoiceCloneResponse>(responseContent);
+        var voiceId = cloneResponse?.Voice ?? cloneResponse?.VoiceId ?? cloneResponse?.Id;
+
+        if (string.IsNullOrEmpty(voiceId))
+        {
+            logger.LogWarning("Voice clone response did not contain voice_id. Response: {Content}", responseContent);
+            return string.Empty;
+        }
+
+        logger.LogInformation("Voice cloned successfully: {VoiceId}", voiceId);
+        _cachedVoiceId = voiceId;
+        return voiceId;
+    }
+
+    /// <summary>
+    /// 上传音频文件获取 file_id
+    /// </summary>
+    private async Task<string?> UploadAudioFileAsync(string audioFilePath, CancellationToken cancellationToken)
+    {
+        logger.LogInformation("Uploading audio file: {Path}", audioFilePath);
+
+        using var content = new MultipartFormDataContent();
+        var fileBytes = await File.ReadAllBytesAsync(audioFilePath, cancellationToken);
+        var fileContent = new ByteArrayContent(fileBytes);
+        fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("audio/wav");
+        content.Add(fileContent, "file", Path.GetFileName(audioFilePath));
+        content.Add(new StringContent("voice-clone-input"), "purpose");
+
+        using var requestMessage = new HttpRequestMessage(HttpMethod.Post, $"{_aiSettings.Endpoint}files");
+        requestMessage.Headers.Add("Authorization", $"Bearer {_aiSettings.ApiKey}");
+        requestMessage.Content = content;
+
+        using var response = await httpClient.SendAsync(requestMessage, cancellationToken);
+        var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            logger.LogWarning("File upload failed: {StatusCode} - {Content}", response.StatusCode, responseContent);
+            return null;
+        }
+
+        var uploadResponse = JsonSerializer.Deserialize<FileUploadResponse>(responseContent);
+        var fileId = uploadResponse?.Id;
+
+        logger.LogInformation("Audio file uploaded: {FileId}", fileId);
+        return fileId;
     }
 
     private static double EstimateDuration(int audioByteSize)
     {
-        // Rough estimation: MP3 at 128kbps = 16KB per second
-        return audioByteSize / 16000.0;
+        // WAV at 24000Hz, 16bit mono = 48000 bytes per second (GLM-TTS uses 24kHz)
+        return audioByteSize / 48000.0;
     }
 }
 
 /// <summary>
-/// 智谱TTS请求模型
+/// GLM-TTS 流式响应模型
 /// </summary>
-public class ZhipuTtsRequest
+public class GlmTtsStreamResponse
 {
-    [JsonPropertyName("model")]
-    public string Model { get; set; } = "glm-4-voice";
+    [JsonPropertyName("id")]
+    public string? Id { get; set; }
 
-    [JsonPropertyName("input")]
-    public string Input { get; set; } = string.Empty;
+    [JsonPropertyName("created")]
+    public long? Created { get; set; }
+
+    [JsonPropertyName("model")]
+    public string? Model { get; set; }
+
+    [JsonPropertyName("choices")]
+    public List<GlmTtsStreamChoice>? Choices { get; set; }
+}
+
+public class GlmTtsStreamChoice
+{
+    [JsonPropertyName("index")]
+    public int Index { get; set; }
+
+    [JsonPropertyName("delta")]
+    public GlmTtsStreamDelta? Delta { get; set; }
+
+    [JsonPropertyName("finish_reason")]
+    public string? FinishReason { get; set; }
+}
+
+public class GlmTtsStreamDelta
+{
+    [JsonPropertyName("role")]
+    public string? Role { get; set; }
+
+    [JsonPropertyName("content")]
+    public string? Content { get; set; }
+
+    [JsonPropertyName("return_sample_rate")]
+    public int? ReturnSampleRate { get; set; }
+}
+
+/// <summary>
+/// 音色复刻 API 响应模型
+/// </summary>
+public class VoiceCloneResponse
+{
+    [JsonPropertyName("id")]
+    public string? Id { get; set; }
+
+    [JsonPropertyName("voice_id")]
+    public string? VoiceId { get; set; }
 
     [JsonPropertyName("voice")]
-    public string Voice { get; set; } = "alloy";
+    public string? Voice { get; set; }
 
-    [JsonPropertyName("response_format")]
-    public string ResponseFormat { get; set; } = "mp3";
+    [JsonPropertyName("name")]
+    public string? Name { get; set; }
 
-    [JsonPropertyName("speed")]
-    public double Speed { get; set; } = 1.0;
+    [JsonPropertyName("status")]
+    public string? Status { get; set; }
 
-    [JsonPropertyName("stream")]
-    public bool Stream { get; set; }
+    [JsonPropertyName("file_id")]
+    public string? FileId { get; set; }
+}
 
-    [JsonPropertyName("reference_audio")]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string? ReferenceAudio { get; set; }
+/// <summary>
+/// 文件上传 API 响应模型
+/// </summary>
+public class FileUploadResponse
+{
+    [JsonPropertyName("id")]
+    public string? Id { get; set; }
+
+    [JsonPropertyName("object")]
+    public string? Object { get; set; }
+
+    [JsonPropertyName("bytes")]
+    public long? Bytes { get; set; }
+
+    [JsonPropertyName("created_at")]
+    public long? CreatedAt { get; set; }
+
+    [JsonPropertyName("filename")]
+    public string? Filename { get; set; }
+
+    [JsonPropertyName("purpose")]
+    public string? Purpose { get; set; }
 }

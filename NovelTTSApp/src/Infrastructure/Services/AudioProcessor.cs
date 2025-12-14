@@ -34,9 +34,15 @@ public class AudioProcessor(
             Directory.CreateDirectory(outputDir);
         }
 
+        // Output as WAV since we don't have MP3 encoder
+        var wavOutputPath = Path.ChangeExtension(outputPath, ".wav");
+
         await Task.Run(() =>
         {
-            using var outputStream = new MemoryStream();
+            // Target format: 44100Hz, 16bit, mono for consistency
+            var targetFormat = new WaveFormat(44100, 16, 1);
+            
+            using var outputWriter = new WaveFileWriter(wavOutputPath, targetFormat);
             
             foreach (var segment in orderedSegments)
             {
@@ -48,30 +54,57 @@ public class AudioProcessor(
                     continue;
                 }
 
-                using var reader = new Mp3FileReader(segment.AudioFilePath);
-                
-                // For the first file, we need to write the complete MP3 including headers
-                if (outputStream.Length == 0)
+                try
                 {
-                    reader.CopyTo(outputStream);
-                }
-                else
-                {
-                    // Skip MP3 headers for subsequent files
-                    Mp3Frame? frame;
-                    while ((frame = reader.ReadNextFrame()) != null)
+                    // Use AudioFileReader which auto-detects format (WAV, MP3, etc.)
+                    using var reader = new AudioFileReader(segment.AudioFilePath!);
+                    
+                    // Resample to target format if needed
+                    ISampleProvider sampleProvider = reader;
+                    
+                    if (reader.WaveFormat.SampleRate != targetFormat.SampleRate)
                     {
-                        outputStream.Write(frame.RawData, 0, frame.RawData.Length);
+                        // Use MediaFoundationResampler for resampling
+                        var resampled = new MediaFoundationResampler(reader, targetFormat);
+                        resampled.ResamplerQuality = 60; // High quality
+                        
+                        // Read all resampled data
+                        var buffer = new byte[4096];
+                        int bytesRead;
+                        while ((bytesRead = resampled.Read(buffer, 0, buffer.Length)) > 0)
+                        {
+                            outputWriter.Write(buffer, 0, bytesRead);
+                        }
                     }
+                    else
+                    {
+                        // Convert to mono if needed
+                        if (reader.WaveFormat.Channels != targetFormat.Channels)
+                        {
+                            sampleProvider = reader.ToMono();
+                        }
+                        
+                        // Write samples
+                        var sampleBuffer = new float[4096];
+                        int samplesRead;
+                        while ((samplesRead = sampleProvider.Read(sampleBuffer, 0, sampleBuffer.Length)) > 0)
+                        {
+                            outputWriter.WriteSamples(sampleBuffer, 0, samplesRead);
+                        }
+                    }
+                    
+                    logger.LogDebug("Merged segment {Index}", segment.SegmentIndex);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Failed to merge segment {Index} from {Path}", 
+                        segment.SegmentIndex, segment.AudioFilePath);
                 }
             }
-
-            // Write to output file
-            File.WriteAllBytes(outputPath, outputStream.ToArray());
         }, cancellationToken);
 
-        logger.LogInformation("Audio merge completed: {OutputPath}", outputPath);
-        return outputPath;
+        logger.LogInformation("Audio merge completed: {OutputPath}", wavOutputPath);
+        return wavOutputPath;
     }
 
     /// <inheritdoc/>

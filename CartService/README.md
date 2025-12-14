@@ -2,6 +2,8 @@
 
 高性能电商购物车微服务，基于 Python + FastAPI + PostgreSQL 构建。
 
+- **开发过程记录**: [Agent&Chat.md](./docs/Agent&Chat.md)
+
 ## 技术栈
 
 | 技术 | 版本 | 说明 |

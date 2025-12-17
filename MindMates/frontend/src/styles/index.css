@@ -1,0 +1,124 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 基础样式重置 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 移动端适配 - Element Plus 组件增强 */
+@media (max-width: 768px) {
+  /* 增大输入框 */
+  .el-input__inner {
+    height: 48px !important;
+    font-size: 16px !important;
+  }
+  
+  /* 增大按钮 */
+  .el-button {
+    height: 48px !important;
+    font-size: 16px !important;
+    padding: 12px 24px !important;
+  }
+  
+  .el-button--large {
+    height: 52px !important;
+  }
+  
+  /* 增大表单标签 */
+  .el-form-item__label {
+    font-size: 15px !important;
+  }
+  
+  /* 卡片圆角增大 */
+  .el-card {
+    border-radius: 16px !important;
+  }
+  
+  /* 对话框移动端适配 */
+  .el-dialog {
+    width: 90% !important;
+    max-width: 400px !important;
+    border-radius: 16px !important;
+  }
+}
+
+/* 安全区域适配 (iPhone刘海屏等) */
+.safe-area-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* 聊天消息样式 */
+.chat-bubble {
+  @apply rounded-2xl px-4 py-3 max-w-[85%];
+}
+
+.chat-bubble-user {
+  @apply bg-primary-600 text-white ml-auto;
+  border-bottom-right-radius: 4px;
+}
+
+.chat-bubble-ai {
+  @apply bg-white text-gray-800 mr-auto shadow-sm;
+  border-bottom-left-radius: 4px;
+}
+
+/* 自定义滚动条 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+/* 加载动画 */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/* 滑动动画 */
+.slide-up-enter-active,
+.slide-up-leave-active {
+  transition: all 0.3s ease;
+}
+
+.slide-up-enter-from {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.slide-up-leave-to {
+  opacity: 0;
+  transform: translateY(-20px);
+}

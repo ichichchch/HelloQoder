@@ -92,7 +92,7 @@ async def get_mimo_response(
     }
     
     payload = {
-        "model": "MiMo-V2-Flash",
+        "model": "mimo-v2-flash",
         "messages": messages,
         "temperature": 0.7,
         "max_tokens": 1024,

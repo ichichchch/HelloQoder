@@ -84,7 +84,7 @@ class PsychologyKnowledgeRetriever(BaseRetriever):
             }
         ]
     
-    def _get_relevant_docs(
+    def _get_relevant_documents(
         self,
         query: str,
         *,
@@ -133,5 +133,5 @@ async def retrieve_knowledge(query: str) -> list[str]:
         List of relevant knowledge snippets
     """
     retriever = get_retriever()
-    docs = retriever._get_relevant_docs(query)
+    docs = retriever._get_relevant_documents(query)
     return [doc.page_content for doc in docs]

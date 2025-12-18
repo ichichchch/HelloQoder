@@ -4,7 +4,7 @@ Uses Xiaomi MiMo-V2-Flash model for psychological counseling responses.
 """
 
 import httpx
-from typing import AsyncGenerator
+from typing import AsyncGenerator, Optional
 from app.config import get_settings
 from app.rag import retrieve_knowledge
 
@@ -50,15 +50,17 @@ If the user expresses intent of **Self-Harm**, **Suicide**, or **Harming Others*
 async def get_mimo_response(
     message: str,
     history: list[dict],
-    stream: bool = False
+    stream: bool = False,
+    memory_context: Optional[str] = None
 ) -> str | AsyncGenerator[str, None]:
     """
-    Get response from MiMo API with RAG context.
+    Get response from MiMo API with RAG context and memory.
     
     Args:
         message: User's current message
         history: Previous conversation history
         stream: Whether to stream the response
+        memory_context: Optional memory context to inject
         
     Returns:
         AI response string or async generator for streaming
@@ -66,8 +68,13 @@ async def get_mimo_response(
     # Retrieve relevant psychological knowledge (RAG)
     knowledge_context = await retrieve_knowledge(message)
     
-    # Build system prompt with RAG context
+    # Build system prompt with RAG context and memory
     system_prompt = COUNSELOR_SYSTEM_PROMPT
+    
+    # Add memory context if available
+    if memory_context:
+        system_prompt += f"\n\n# User Memory Context\n{memory_context}\n\n**Important**: Use this memory naturally. Don't say 'according to your records' - just demonstrate understanding."
+    
     if knowledge_context:
         context_text = "\n\n".join(knowledge_context)
         system_prompt += f"\n\n# Professional Knowledge Context\n{context_text}"

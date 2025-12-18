@@ -137,8 +137,7 @@ async def root():
 
 class EndSessionRequest(BaseModel):
     """Request to end a chat session."""
-    user_id: str
-    messages: list[dict]
+    messages: list[dict]  # user_id will be auto-filled from client IP
 
 
 class MemoryStatsResponse(BaseModel):
@@ -150,57 +149,58 @@ class MemoryStatsResponse(BaseModel):
 
 
 @app.post("/api/session/end")
-async def end_session(request: EndSessionRequest):
+async def end_session(end_request: EndSessionRequest, request: Request):
     """
     End a chat session and generate summary.
     
     This should be called when the user closes a chat session
     to generate and store a summary of the conversation.
+    User ID is automatically determined from client IP.
     """
     try:
-        await end_chat_session(request.user_id, request.messages)
+        client_ip = get_client_ip(request)
+        await end_chat_session(client_ip, end_request.messages)
         return {"status": "ok", "message": "Session ended successfully"}
     except Exception as e:
         print(f"Error ending session: {e}")
         raise HTTPException(status_code=500, detail="Failed to end session")
 
 
-@app.get("/api/memory/stats/{user_id}", response_model=MemoryStatsResponse)
-async def get_memory_stats(user_id: str):
+@app.get("/api/memory/stats", response_model=MemoryStatsResponse)
+async def get_memory_stats(request: Request):
     """
-    Get memory statistics for a user.
+    Get memory statistics for the current user.
     
-    Args:
-        user_id: User ID to get stats for
+    User ID is automatically determined from client IP.
         
     Returns:
         MemoryStatsResponse with memory statistics
     """
     try:
+        client_ip = get_client_ip(request)
         memory_service = get_memory_service()
-        stats = await memory_service.get_memory_stats(user_id)
+        stats = await memory_service.get_memory_stats(client_ip)
         return MemoryStatsResponse(**stats)
     except Exception as e:
         print(f"Error getting memory stats: {e}")
         raise HTTPException(status_code=500, detail="Failed to get memory stats")
 
 
-@app.delete("/api/memory/{user_id}")
-async def clear_user_memories(user_id: str):
+@app.delete("/api/memory")
+async def clear_user_memories(request: Request):
     """
-    Clear all memories for a user.
+    Clear all memories for the current user.
     
     This is useful for GDPR compliance or user request.
-    
-    Args:
-        user_id: User ID to clear memories for
+    User ID is automatically determined from client IP.
         
     Returns:
         Count of deleted memories
     """
     try:
+        client_ip = get_client_ip(request)
         memory_service = get_memory_service()
-        count = await memory_service.clear_memories(user_id)
+        count = await memory_service.clear_memories(client_ip)
         return {"status": "ok", "deleted_count": count}
     except Exception as e:
         print(f"Error clearing memories: {e}")

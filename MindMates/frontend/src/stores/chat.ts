@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { ChatSession, ChatMessage } from '@/types'
+import type { ChatSession, ChatMessage, MemoryStats } from '@/types'
 import { chatApi } from '@/api/chat'
 
 export const useChatStore = defineStore('chat', () => {
@@ -122,6 +122,50 @@ export const useChatStore = defineStore('chat', () => {
     messages.value = []
   }
 
+  /**
+   * 结束当前会话并生成记忆摘要
+   * 在用户离开对话页面时调用
+   */
+  async function endCurrentSession() {
+    if (messages.value.length === 0) return
+    
+    try {
+      const formattedMessages = messages.value.map(m => ({
+        role: m.role,
+        content: m.content
+      }))
+      await chatApi.endSession(formattedMessages)
+      console.log('会话已结束，记忆已保存')
+    } catch (error) {
+      console.error('结束会话失败:', error)
+    }
+  }
+
+  /**
+   * 获取记忆统计信息
+   */
+  async function getMemoryStats(): Promise<MemoryStats | null> {
+    try {
+      return await chatApi.getMemoryStats()
+    } catch (error) {
+      console.error('获取记忆统计失败:', error)
+      return null
+    }
+  }
+
+  /**
+   * 清除所有记忆
+   */
+  async function clearMemories(): Promise<number> {
+    try {
+      const result = await chatApi.clearMemories()
+      return result.deletedCount
+    } catch (error) {
+      console.error('清除记忆失败:', error)
+      return 0
+    }
+  }
+
   return {
     sessions,
     currentSession,
@@ -134,6 +178,9 @@ export const useChatStore = defineStore('chat', () => {
     loadSession,
     sendMessage,
     deleteSession,
-    clearCurrentSession
+    clearCurrentSession,
+    endCurrentSession,
+    getMemoryStats,
+    clearMemories
   }
 })

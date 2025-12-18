@@ -60,7 +60,7 @@ function goToHistory() {
             </div>
             <div class="start-text">
               <h3>开始新对话</h3>
-              <p>和 AI 伴侣分享您的想法</p>
+              <p>和心理委员分享您的想法</p>
             </div>
             <el-icon class="start-arrow"><ArrowRight /></el-icon>
           </div>

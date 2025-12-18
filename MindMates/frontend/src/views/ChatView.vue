@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, nextTick, watch } from 'vue'
+import { ref, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useChatStore } from '@/stores/chat'
 import { ElMessage } from 'element-plus'
@@ -31,6 +31,11 @@ onMounted(async () => {
       router.replace('/chat')
     }
   }
+})
+
+// 用户离开页面时保存记忆
+onBeforeUnmount(async () => {
+  await chatStore.endCurrentSession()
 })
 
 // 监听消息变化，自动滚动
@@ -112,7 +117,7 @@ function formatMarkdown(text: string): string {
         </div>
         <div class="title-text">
           <h2>心灵对话</h2>
-          <span v-if="chatStore.isTyping" class="typing-indicator">AI正在输入...</span>
+          <span v-if="chatStore.isTyping" class="typing-indicator">正在输入...</span>
         </div>
       </div>
       <div class="header-right"></div>
@@ -126,7 +131,7 @@ function formatMarkdown(text: string): string {
           <el-icon :size="32"><ChatDotRound /></el-icon>
         </div>
         <div class="welcome-bubble">
-          <p>你好！我是MindMates，您的心理健康AI伴侣。</p>
+          <p>你好！我是MindMates，您的心理委员。</p>
           <p>无论您正在经历什么，我都在这里倾听。请放心地分享您的想法和感受。</p>
           <p class="hint">💡 提示：我们的对话是私密的，但如果您正在经历严重困扰，请寻求专业帮助。</p>
         </div>

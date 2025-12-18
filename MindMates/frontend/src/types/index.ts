@@ -49,6 +49,19 @@ export interface ChatMessage {
 export interface SendMessageResponse {
   userMessage: ChatMessage
   aiMessage: ChatMessage
+  memoriesCreated?: number  // 本次对话提取的记忆数量
+}
+
+// 记忆系统相关类型
+export interface MemoryStats {
+  total: number
+  byType: Record<string, number>
+  avgImportance: number
+  recentTopics: string[]
+}
+
+export interface EndSessionRequest {
+  messages: Array<{ role: string; content: string }>
 }
 
 // API 响应类型

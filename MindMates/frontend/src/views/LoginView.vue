@@ -61,7 +61,7 @@ function goToRegister() {
           <el-icon :size="48"><ChatDotRound /></el-icon>
         </div>
         <h1 class="app-title">MindMates</h1>
-        <p class="app-subtitle">您的心理健康AI伴侣</p>
+        <p class="app-subtitle">您的心理委员</p>
       </div>
 
       <!-- 登录表单 -->

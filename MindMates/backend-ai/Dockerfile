@@ -1,7 +1,7 @@
 # MindMates AI Backend Dockerfile
-# Python 3.12 + FastAPI
+# Python 3.13 + FastAPI
 
-FROM python:3.12-slim
+FROM python:3.13-slim
 
 WORKDIR /app
 

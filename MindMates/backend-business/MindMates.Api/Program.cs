@@ -23,7 +23,12 @@ builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.WithOrigins("http://localhost:5173", "http://localhost:5174")
+        policy.WithOrigins(
+                "http://localhost:5173", 
+                "http://localhost:5174",
+                "http://8.138.89.167",
+                "http://localhost"
+            )
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials();
@@ -43,6 +48,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors();
+
+// Health check endpoint
+app.MapGet("/health", () => Results.Ok(new { status = "healthy", service = "MindMates.Api" }));
+
 app.MapControllers();
 
 app.Run();

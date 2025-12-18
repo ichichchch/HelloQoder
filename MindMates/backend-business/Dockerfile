@@ -1,8 +1,8 @@
 # MindMates Business Backend Dockerfile
-# .NET 10 Web API
+# .NET 9 Web API
 
 # Stage 1: Build
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
 # Copy solution and project files
@@ -23,8 +23,11 @@ WORKDIR /src/MindMates.Api
 RUN dotnet publish -c Release -o /app/publish --no-restore
 
 # Stage 2: Runtime
-FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
 WORKDIR /app
+
+# Install wget for healthcheck
+RUN apt-get update && apt-get install -y --no-install-recommends wget && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user for security
 RUN adduser --disabled-password --gecos '' appuser
@@ -46,8 +49,8 @@ ENV ASPNETCORE_ENVIRONMENT=Production
 EXPOSE 5000
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:5000/health || exit 1
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:5000/health || exit 1
 
 # Start application
 ENTRYPOINT ["dotnet", "MindMates.Api.dll"]

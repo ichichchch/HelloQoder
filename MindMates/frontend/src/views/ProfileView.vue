@@ -4,13 +4,13 @@ import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { authApi } from '@/api/auth'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { UserFilled, Lock, ArrowLeft, ArrowRight, SwitchButton } from '@element-plus/icons-vue'
 
 const router = useRouter()
 const userStore = useUserStore()
 
 const loading = ref(false)
 const editMode = ref(false)
-const formRef = ref()
 
 const form = reactive({
   nickname: userStore.user?.nickname || '',

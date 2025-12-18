@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import { onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { useUserStore } from '@/stores/user'
 import { useChatStore } from '@/stores/chat'
 
 const router = useRouter()
-const userStore = useUserStore()
 const chatStore = useChatStore()
 
 // 根据时间获取问候语

@@ -1,5 +1,5 @@
 import request from './request'
-import type { ChatSession, ChatMessage, SendMessageResponse, MemoryStats, EndSessionRequest } from '@/types'
+import type { ChatSession, ChatMessage, SendMessageResponse, MemoryStats } from '@/types'
 
 // AI后端直接调用（记忆系统功能）
 const AI_API_URL = import.meta.env.VITE_AI_API_URL || 'http://localhost:8000'

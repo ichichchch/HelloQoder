@@ -1,5 +1,3 @@
-using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MindMates.Application.DTOs;
 using MindMates.Application.Services;
@@ -8,10 +6,11 @@ namespace MindMates.Api.Controllers;
 
 [ApiController]
 [Route("api/chat")]
-[Authorize]
 public class ChatController : ControllerBase
 {
     private readonly IChatService _chatService;
+    // 默认用户ID（已移除登录认证）
+    private static readonly Guid DefaultUserId = Guid.Parse("00000000-0000-0000-0000-000000000001");
 
     public ChatController(IChatService chatService)
     {
@@ -96,11 +95,6 @@ public class ChatController : ControllerBase
 
     private Guid GetUserId()
     {
-        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
-        {
-            throw new UnauthorizedAccessException("无效的用户令牌");
-        }
-        return userId;
+        return DefaultUserId;
     }
 }

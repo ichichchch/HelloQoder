@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { useChatStore } from '@/stores/chat'
@@ -7,6 +7,18 @@ import { useChatStore } from '@/stores/chat'
 const router = useRouter()
 const userStore = useUserStore()
 const chatStore = useChatStore()
+
+// 根据时间获取问候语
+const greeting = computed(() => {
+  const hour = new Date().getHours()
+  if (hour < 6) return { text: '夜深了', sub: '还没休息吗？' }
+  if (hour < 9) return { text: '早上好', sub: '新的一天开始了' }
+  if (hour < 12) return { text: '上午好', sub: '今天精神怎么样？' }
+  if (hour < 14) return { text: '中午好', sub: '记得休息一下' }
+  if (hour < 18) return { text: '下午好', sub: '这会儿感觉如何？' }
+  if (hour < 22) return { text: '晚上好', sub: '轻松一下吧' }
+  return { text: '夜已深', sub: '有什么心事吗？' }
+})
 
 onMounted(() => {
   chatStore.fetchSessions()
@@ -20,264 +32,208 @@ function startNewChat() {
 function goToHistory() {
   router.push('/history')
 }
-
-function goToProfile() {
-  router.push('/profile')
-}
-
-function handleLogout() {
-  userStore.logout()
-  router.push('/login')
-}
 </script>
 
 <template>
   <div class="home-container safe-area-top safe-area-bottom">
-    <!-- 顶部导航 -->
+    <!-- 顶部区域 -->
     <header class="home-header">
-      <div class="header-left">
-        <div class="avatar-wrapper">
-          <el-avatar :size="42" :icon="UserFilled" />
+      <div class="header-content">
+        <div class="brand-icon">
+          <el-icon :size="28"><ChatDotRound /></el-icon>
         </div>
         <div class="greeting">
-          <p class="greeting-text">你好，</p>
-          <h2 class="user-name">{{ userStore.userName }}</h2>
+          <h2 class="greeting-title">{{ greeting.text }} 👋</h2>
+          <p class="greeting-text">{{ greeting.sub }}</p>
         </div>
-      </div>
-      <div class="header-right">
-        <el-button circle @click="goToProfile">
-          <el-icon><Setting /></el-icon>
-        </el-button>
       </div>
     </header>
 
     <!-- 主要内容 -->
     <main class="home-main">
-      <!-- 欢迎卡片 -->
-      <el-card class="welcome-card" shadow="always">
-        <div class="welcome-content">
-          <div class="welcome-icon">
-            <el-icon :size="40"><ChatDotRound /></el-icon>
+      <!-- 开始对话卡片 -->
+      <div class="start-section">
+        <el-card class="start-card" shadow="always" @click="startNewChat">
+          <div class="start-content">
+            <div class="start-icon">
+              <el-icon :size="32"><ChatLineSquare /></el-icon>
+            </div>
+            <div class="start-text">
+              <h3>开始新对话</h3>
+              <p>和 AI 伴侣分享您的想法</p>
+            </div>
+            <el-icon class="start-arrow"><ArrowRight /></el-icon>
           </div>
-          <h3 class="welcome-title">今天感觉怎么样？</h3>
-          <p class="welcome-desc">
-            我是您的心理健康AI伴侣，随时准备倾听您的心声。
-            无论是压力、焦虑还是任何困扰，我都在这里陪伴您。
-          </p>
-          <el-button type="primary" size="large" class="start-chat-btn" @click="startNewChat">
-            <el-icon><ChatLineSquare /></el-icon>
-            开始倾诉
-          </el-button>
-        </div>
-      </el-card>
-
-      <!-- 功能入口 -->
-      <div class="feature-grid">
-        <el-card class="feature-card" shadow="hover" @click="goToHistory">
-          <div class="feature-icon history-icon">
-            <el-icon :size="28"><Document /></el-icon>
-          </div>
-          <h4 class="feature-title">对话历史</h4>
-          <p class="feature-desc">查看过往的对话记录</p>
-        </el-card>
-
-        <el-card class="feature-card" shadow="hover" @click="goToProfile">
-          <div class="feature-icon profile-icon">
-            <el-icon :size="28"><User /></el-icon>
-          </div>
-          <h4 class="feature-title">个人中心</h4>
-          <p class="feature-desc">管理您的个人信息</p>
         </el-card>
       </div>
 
       <!-- 最近对话 -->
-      <div v-if="chatStore.sortedSessions.length > 0" class="recent-section">
+      <div class="recent-section">
         <div class="section-header">
-          <h3 class="section-title">最近对话</h3>
-          <el-link type="primary" @click="goToHistory">查看全部</el-link>
+          <h3 class="section-title">
+            <el-icon><Clock /></el-icon>
+            最近对话
+          </h3>
+          <el-button v-if="chatStore.sortedSessions.length > 0" class="view-all-btn" text @click="goToHistory">
+            查看全部
+            <el-icon><ArrowRight /></el-icon>
+          </el-button>
         </div>
-        <div class="session-list">
-          <el-card
-            v-for="session in chatStore.sortedSessions.slice(0, 3)"
+        
+        <div v-if="chatStore.sortedSessions.length === 0" class="empty-hint">
+          <el-icon :size="40"><Document /></el-icon>
+          <p>还没有对话记录</p>
+          <span>开始您的第一次对话吧</span>
+        </div>
+
+        <div v-else class="session-list">
+          <div
+            v-for="session in chatStore.sortedSessions.slice(0, 4)"
             :key="session.id"
-            class="session-card"
-            shadow="hover"
+            class="session-item"
             @click="router.push(`/chat/${session.id}`)"
           >
+            <div class="session-dot"></div>
             <div class="session-info">
-              <h4 class="session-title">{{ session.title || '新对话' }}</h4>
-              <p class="session-preview">{{ session.lastMessage || '暂无消息' }}</p>
+              <h4>{{ session.title || '新对话' }}</h4>
+              <p>{{ session.lastMessage || '暂无消息' }}</p>
             </div>
             <el-icon class="session-arrow"><ArrowRight /></el-icon>
-          </el-card>
+          </div>
         </div>
       </div>
 
-      <!-- 心理健康提示 -->
-      <el-card class="tips-card" shadow="hover">
+      <!-- 底部提示 -->
+      <div class="tips-section">
         <div class="tips-content">
-          <el-icon :size="24" class="tips-icon"><InfoFilled /></el-icon>
-          <div class="tips-text">
-            <h4>温馨提示</h4>
-            <p>如果您正在经历严重的心理困扰，请及时寻求专业帮助。
-            全国心理援助热线：<strong>400-161-9995</strong></p>
-          </div>
+          <el-icon :size="18"><InfoFilled /></el-icon>
+          <span>如遇紧急情况，请拨打心理援助热线：<strong>400-161-9995</strong></span>
         </div>
-      </el-card>
+      </div>
     </main>
-
-    <!-- 底部导航 -->
-    <footer class="home-footer">
-      <el-button type="danger" text @click="handleLogout">
-        <el-icon><SwitchButton /></el-icon>
-        退出登录
-      </el-button>
-    </footer>
   </div>
 </template>
 
 <style scoped>
 .home-container {
   min-height: 100vh;
-  background: linear-gradient(180deg, #667eea 0%, #f5f7fa 30%);
+  background: linear-gradient(180deg, #FF9A6C 0%, #FFE8E0 25%, #FFF8F5 50%);
   display: flex;
   flex-direction: column;
 }
 
 .home-header {
+  padding: 24px 20px 32px;
+}
+
+.header-content {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 20px;
+  gap: 14px;
+}
+
+.brand-icon {
+  width: 50px;
+  height: 50px;
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: white;
 }
 
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+.greeting {
+  color: white;
 }
 
-.avatar-wrapper {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 50%;
-  padding: 2px;
+.greeting-title {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0 0 4px;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
 .greeting-text {
   font-size: 14px;
-  opacity: 0.9;
-  margin: 0;
-}
-
-.user-name {
-  font-size: 20px;
-  font-weight: 600;
+  opacity: 0.85;
   margin: 0;
 }
 
 .home-main {
   flex: 1;
   padding: 0 20px 20px;
-  overflow-y: auto;
-}
-
-.welcome-card {
-  border-radius: 20px;
-  margin-bottom: 20px;
-  border: none;
-}
-
-.welcome-content {
-  text-align: center;
-  padding: 20px 0;
-}
-
-.welcome-icon {
-  width: 72px;
-  height: 72px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 20px;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 16px;
-  color: white;
+  flex-direction: column;
+  gap: 20px;
 }
 
-.welcome-title {
-  font-size: 22px;
-  font-weight: 600;
-  margin: 0 0 12px;
-  color: #303133;
+/* 开始对话卡片 */
+.start-section {
+  margin-top: -16px;
 }
 
-.welcome-desc {
-  font-size: 14px;
-  color: #909399;
-  line-height: 1.6;
-  margin: 0 0 20px;
-}
-
-.start-chat-btn {
-  height: 48px;
-  padding: 0 32px;
-  font-size: 16px;
-  border-radius: 24px;
-}
-
-.feature-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  margin-bottom: 20px;
-}
-
-.feature-card {
-  border-radius: 16px;
-  cursor: pointer;
-  transition: transform 0.2s;
+.start-card {
+  border-radius: 20px;
   border: none;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.feature-card:active {
+.start-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(255, 107, 107, 0.2);
+}
+
+.start-card:active {
   transform: scale(0.98);
 }
 
-.feature-icon {
-  width: 52px;
-  height: 52px;
-  border-radius: 14px;
+.start-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 0;
+}
+
+.start-icon {
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, #FF9A6C 0%, #FF6B6B 100%);
+  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 12px;
   color: white;
+  flex-shrink: 0;
 }
 
-.history-icon {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+.start-text {
+  flex: 1;
 }
 
-.profile-icon {
-  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-}
-
-.feature-title {
-  font-size: 16px;
+.start-text h3 {
+  font-size: 17px;
   font-weight: 600;
   margin: 0 0 4px;
   color: #303133;
 }
 
-.feature-desc {
-  font-size: 12px;
+.start-text p {
+  font-size: 13px;
   color: #909399;
   margin: 0;
 }
 
+.start-arrow {
+  color: #FF8C6B;
+  font-size: 18px;
+}
+
+/* 最近对话 */
 .recent-section {
-  margin-bottom: 20px;
+  flex: 1;
 }
 
 .section-header {
@@ -288,28 +244,90 @@ function handleLogout() {
 }
 
 .section-title {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
   margin: 0;
   color: #303133;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.section-title .el-icon {
+  color: #FF8C6B;
+}
+
+.view-all-btn {
+  color: #FF8C6B !important;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 12px !important;
+  border-radius: 16px;
+  background: rgba(255, 140, 107, 0.1) !important;
+  transition: all 0.2s;
+}
+
+.view-all-btn:hover {
+  background: rgba(255, 140, 107, 0.2) !important;
+}
+
+.view-all-btn .el-icon {
+  margin-left: 2px;
+  font-size: 12px;
+}
+
+.empty-hint {
+  text-align: center;
+  padding: 40px 20px;
+  color: #c0c4cc;
+}
+
+.empty-hint .el-icon {
+  margin-bottom: 12px;
+}
+
+.empty-hint p {
+  font-size: 15px;
+  margin: 0 0 4px;
+  color: #909399;
+}
+
+.empty-hint span {
+  font-size: 13px;
 }
 
 .session-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
-.session-card {
-  border-radius: 14px;
-  cursor: pointer;
-  border: none;
-}
-
-.session-card :deep(.el-card__body) {
+.session-item {
   display: flex;
   align-items: center;
+  gap: 12px;
   padding: 14px 16px;
+  background: white;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.session-item:hover {
+  background: #FFF5F0;
+}
+
+.session-item:active {
+  transform: scale(0.98);
+}
+
+.session-dot {
+  width: 8px;
+  height: 8px;
+  background: linear-gradient(135deg, #FF9A6C 0%, #FF6B6B 100%);
+  border-radius: 50%;
+  flex-shrink: 0;
 }
 
 .session-info {
@@ -317,14 +335,17 @@ function handleLogout() {
   min-width: 0;
 }
 
-.session-title {
+.session-info h4 {
   font-size: 15px;
   font-weight: 500;
-  margin: 0 0 4px;
+  margin: 0 0 3px;
   color: #303133;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.session-preview {
+.session-info p {
   font-size: 13px;
   color: #909399;
   margin: 0;
@@ -335,43 +356,31 @@ function handleLogout() {
 
 .session-arrow {
   color: #c0c4cc;
+  flex-shrink: 0;
 }
 
-.tips-card {
-  border-radius: 16px;
-  background: #fff9e6;
-  border: 1px solid #ffeeba;
+/* 底部提示 */
+.tips-section {
+  margin-top: auto;
 }
 
 .tips-content {
   display: flex;
-  gap: 12px;
-}
-
-.tips-icon {
-  color: #e6a23c;
-  flex-shrink: 0;
-  margin-top: 2px;
-}
-
-.tips-text h4 {
-  font-size: 14px;
-  font-weight: 600;
-  margin: 0 0 6px;
-  color: #856404;
-}
-
-.tips-text p {
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  background: linear-gradient(135deg, #FFF5E6 0%, #FFE8D9 100%);
+  border-radius: 12px;
   font-size: 13px;
-  color: #856404;
-  margin: 0;
-  line-height: 1.5;
+  color: #8B5A2B;
 }
 
-.home-footer {
-  padding: 16px 20px;
-  text-align: center;
-  background: white;
-  border-top: 1px solid #ebeef5;
+.tips-content .el-icon {
+  color: #E6A23C;
+  flex-shrink: 0;
+}
+
+.tips-content strong {
+  color: #FF8C6B;
 }
 </style>

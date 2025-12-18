@@ -58,11 +58,14 @@ function formatDate(dateStr: string) {
   <div class="history-container safe-area-top safe-area-bottom">
     <!-- 顶部栏 -->
     <header class="history-header">
-      <el-button circle text @click="goBack">
+      <el-button class="back-btn" circle text @click="goBack">
         <el-icon :size="20"><ArrowLeft /></el-icon>
       </el-button>
-      <h2 class="header-title">对话历史</h2>
-      <div class="header-right" style="width: 40px;"></div>
+      <div class="header-title">
+        <el-icon :size="18"><Document /></el-icon>
+        <h2>对话历史</h2>
+      </div>
+      <div class="header-right"></div>
     </header>
 
     <!-- 会话列表 -->
@@ -110,7 +113,7 @@ function formatDate(dateStr: string) {
 <style scoped>
 .history-container {
   min-height: 100vh;
-  background: #f5f7fa;
+  background: linear-gradient(180deg, #FF9A6C 0%, #FFF8F5 20%);
   display: flex;
   flex-direction: column;
 }
@@ -119,21 +122,34 @@ function formatDate(dateStr: string) {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
-  background: white;
-  border-bottom: 1px solid #ebeef5;
+  padding: 16px;
+  color: white;
+}
+
+.back-btn {
+  color: white !important;
+  background: rgba(255,255,255,0.15) !important;
 }
 
 .header-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header-title h2 {
   font-size: 17px;
   font-weight: 600;
   margin: 0;
-  color: #303133;
+}
+
+.header-right {
+  width: 40px;
 }
 
 .history-main {
   flex: 1;
-  padding: 16px;
+  padding: 0 16px 16px;
   overflow-y: auto;
 }
 
@@ -141,20 +157,27 @@ function formatDate(dateStr: string) {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100%;
+  height: 60vh;
+  background: white;
+  border-radius: 20px;
+  margin-top: 8px;
 }
 
 .session-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .session-card {
-  border-radius: 14px;
+  border-radius: 16px;
   cursor: pointer;
   border: none;
-  transition: transform 0.2s;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.session-card:hover {
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
 }
 
 .session-card:active {
@@ -168,10 +191,10 @@ function formatDate(dateStr: string) {
 }
 
 .session-icon {
-  width: 48px;
-  height: 48px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 14px;
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(135deg, #FFB088 0%, #FF8C6B 100%);
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -187,7 +210,7 @@ function formatDate(dateStr: string) {
 .session-title {
   font-size: 15px;
   font-weight: 600;
-  margin: 0 0 4px;
+  margin: 0 0 3px;
   color: #303133;
   white-space: nowrap;
   overflow: hidden;
@@ -197,14 +220,14 @@ function formatDate(dateStr: string) {
 .session-preview {
   font-size: 13px;
   color: #909399;
-  margin: 0 0 4px;
+  margin: 0 0 3px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .session-time {
-  font-size: 12px;
+  font-size: 11px;
   color: #c0c4cc;
 }
 </style>

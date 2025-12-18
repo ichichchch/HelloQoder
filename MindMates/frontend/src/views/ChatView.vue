@@ -74,22 +74,48 @@ function formatTime(dateStr: string) {
 function checkIsCrisis(message: any) {
   return message.metadata?.isCrisis === true
 }
+
+// 解析 Markdown 格式
+function formatMarkdown(text: string): string {
+  if (!text) return ''
+  
+  let html = text
+    // 转义 HTML 特殊字符
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    // 粗体 **text** 或 __text__
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/__(.+?)__/g, '<strong>$1</strong>')
+    // 斜体 *text* 或 _text_
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/_(.+?)_/g, '<em>$1</em>')
+    // 行内代码 `code`
+    .replace(/`(.+?)`/g, '<code>$1</code>')
+    // 换行
+    .replace(/\n/g, '<br>')
+  
+  return html
+}
 </script>
 
 <template>
   <div class="chat-container safe-area-top safe-area-bottom">
     <!-- 顶部栏 -->
     <header class="chat-header">
-      <el-button circle text @click="goBack">
+      <el-button class="back-btn" circle text @click="goBack">
         <el-icon :size="20"><ArrowLeft /></el-icon>
       </el-button>
       <div class="header-title">
-        <h2>心灵对话</h2>
-        <span v-if="chatStore.isTyping" class="typing-indicator">正在输入...</span>
+        <div class="title-icon">
+          <el-icon :size="18"><ChatDotRound /></el-icon>
+        </div>
+        <div class="title-text">
+          <h2>心灵对话</h2>
+          <span v-if="chatStore.isTyping" class="typing-indicator">AI正在输入...</span>
+        </div>
       </div>
-      <div class="header-right">
-        <el-icon :size="20"><ChatDotRound /></el-icon>
-      </div>
+      <div class="header-right"></div>
     </header>
 
     <!-- 消息列表 -->
@@ -116,8 +142,10 @@ function checkIsCrisis(message: any) {
           
           <!-- 消息气泡 -->
           <div :class="['chat-bubble', message.role === 'user' ? 'chat-bubble-user' : 'chat-bubble-ai']">
-            <p class="message-content">{{ message.content }}</p>
-            <span class="message-time">{{ formatTime(message.createdAt) }}</span>
+            <div class="message-wrapper">
+              <div class="message-content" v-html="formatMarkdown(message.content)"></div>
+              <span class="message-time">{{ formatTime(message.createdAt) }}</span>
+            </div>
           </div>
         </div>
 
@@ -185,7 +213,7 @@ function checkIsCrisis(message: any) {
   height: 100dvh;
   display: flex;
   flex-direction: column;
-  background: #f5f7fa;
+  background: linear-gradient(180deg, #FFF8F5 0%, #FFFFFF 100%);
 }
 
 .chat-header {
@@ -193,40 +221,58 @@ function checkIsCrisis(message: any) {
   align-items: center;
   justify-content: space-between;
   padding: 12px 16px;
-  background: white;
-  border-bottom: 1px solid #ebeef5;
+  background: linear-gradient(135deg, #FF9A6C 0%, #FF6B6B 100%);
+  color: white;
+}
+
+.back-btn {
+  color: white !important;
+  background: rgba(255,255,255,0.15) !important;
+}
+
+.back-btn:hover {
+  background: rgba(255,255,255,0.25) !important;
 }
 
 .header-title {
-  text-align: center;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-.header-title h2 {
-  font-size: 17px;
+.title-icon {
+  width: 32px;
+  height: 32px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.title-text h2 {
+  font-size: 16px;
   font-weight: 600;
   margin: 0;
-  color: #303133;
+  color: white;
 }
 
 .typing-indicator {
-  font-size: 12px;
-  color: #909399;
+  font-size: 11px;
+  color: rgba(255,255,255,0.8);
 }
 
 .header-right {
   width: 40px;
-  display: flex;
-  justify-content: center;
-  color: #667eea;
 }
 
 .message-list {
   flex: 1;
   overflow-y: auto;
-  padding: 16px;
+  padding: 20px 16px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
 }
 
 .welcome-message {
@@ -238,7 +284,7 @@ function checkIsCrisis(message: any) {
 .ai-avatar {
   width: 48px;
   height: 48px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #FF9A6C 0%, #FF6B6B 100%);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -254,10 +300,10 @@ function checkIsCrisis(message: any) {
 
 .welcome-bubble {
   background: white;
-  border-radius: 16px;
+  border-radius: 20px;
   border-top-left-radius: 4px;
-  padding: 16px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  padding: 18px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
   flex: 1;
 }
 
@@ -292,39 +338,68 @@ function checkIsCrisis(message: any) {
 }
 
 .chat-bubble {
-  max-width: 80%;
+  max-width: 78%;
   padding: 12px 16px;
-  border-radius: 18px;
+  border-radius: 20px;
   position: relative;
 }
 
 .chat-bubble-user {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #FF9A6C 0%, #FF6B6B 100%);
   color: white;
-  border-bottom-right-radius: 4px;
+  border-bottom-right-radius: 6px;
+  box-shadow: 0 4px 16px rgba(255, 107, 107, 0.3);
 }
 
 .chat-bubble-ai {
   background: white;
   color: #303133;
-  border-bottom-left-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border-bottom-left-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
 }
 
 .message-content {
   margin: 0;
   font-size: 15px;
-  line-height: 1.5;
+  line-height: 1.7;
   word-wrap: break-word;
-  white-space: pre-wrap;
+  display: inline;
+}
+
+.message-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.message-content :deep(strong) {
+  font-weight: 600;
+}
+
+.message-content :deep(em) {
+  font-style: italic;
+}
+
+.message-content :deep(code) {
+  background: rgba(0, 0, 0, 0.08);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 13px;
+}
+
+.chat-bubble-user .message-content :deep(code) {
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .message-time {
-  display: block;
-  font-size: 11px;
-  opacity: 0.7;
-  margin-top: 6px;
-  text-align: right;
+  font-size: 10px;
+  opacity: 0.5;
+  white-space: nowrap;
+  margin-left: auto;
+  flex-shrink: 0;
+  align-self: flex-end;
 }
 
 /* 危机资源卡片 */
@@ -342,7 +417,7 @@ function checkIsCrisis(message: any) {
 }
 
 .crisis-list a {
-  color: #409eff;
+  color: #FF8C6B;
   text-decoration: none;
 }
 
@@ -359,7 +434,7 @@ function checkIsCrisis(message: any) {
 .typing-dots span {
   width: 8px;
   height: 8px;
-  background: #909399;
+  background: #FFB088;
   border-radius: 50%;
   animation: typing 1.4s infinite both;
 }
@@ -385,27 +460,39 @@ function checkIsCrisis(message: any) {
 
 /* 输入区域 */
 .chat-footer {
-  padding: 12px 16px;
+  padding: 14px 16px;
   background: white;
-  border-top: 1px solid #ebeef5;
+  border-top: 1px solid rgba(0,0,0,0.05);
+  box-shadow: 0 -4px 16px rgba(0,0,0,0.04);
 }
 
 .input-wrapper {
   display: flex;
   align-items: flex-end;
-  gap: 10px;
+  gap: 12px;
+  background: #F8F8F8;
+  border-radius: 24px;
+  padding: 6px 6px 6px 16px;
 }
 
 .input-wrapper :deep(.el-textarea__inner) {
-  border-radius: 20px;
-  padding: 10px 16px;
+  border: none;
+  background: transparent;
+  padding: 8px 0;
   resize: none;
   font-size: 15px;
+  box-shadow: none !important;
 }
 
 .input-wrapper .el-button {
   flex-shrink: 0;
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #FF9A6C 0%, #FF6B6B 100%) !important;
+  border: none !important;
+}
+
+.input-wrapper .el-button:disabled {
+  opacity: 0.5;
 }
 </style>

@@ -1,5 +1,4 @@
 import axios from 'axios'
-import { useUserStore } from '@/stores/user'
 import { ElMessage } from 'element-plus'
 
 const request = axios.create({
@@ -9,20 +8,6 @@ const request = axios.create({
     'Content-Type': 'application/json'
   }
 })
-
-// 请求拦截器
-request.interceptors.request.use(
-  (config) => {
-    const userStore = useUserStore()
-    if (userStore.token) {
-      config.headers.Authorization = `Bearer ${userStore.token}`
-    }
-    return config
-  },
-  (error) => {
-    return Promise.reject(error)
-  }
-)
 
 // 响应拦截器
 request.interceptors.response.use(
@@ -34,16 +19,6 @@ request.interceptors.response.use(
     
     if (response) {
       switch (response.status) {
-        case 401:
-          // Token 过期或无效
-          const userStore = useUserStore()
-          userStore.logout()
-          ElMessage.error('登录已过期，请重新登录')
-          window.location.href = '/login'
-          break
-        case 403:
-          ElMessage.error('没有权限访问')
-          break
         case 404:
           ElMessage.error('请求的资源不存在')
           break

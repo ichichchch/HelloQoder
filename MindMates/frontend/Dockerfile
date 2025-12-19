@@ -15,14 +15,6 @@ RUN npm ci
 # Copy source code
 COPY . .
 
-# Build arguments for API URLs
-ARG VITE_API_URL=http://localhost:5000
-ARG VITE_AI_API_URL=http://localhost:8000
-
-# Set environment variables for build
-ENV VITE_API_URL=$VITE_API_URL
-ENV VITE_AI_API_URL=$VITE_AI_API_URL
-
 # Build the application
 RUN npm run build
 

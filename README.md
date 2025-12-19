@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![Projects](https://img.shields.io/badge/Projects-3-blue?style=flat-square)
+![Projects](https://img.shields.io/badge/Projects-4-blue?style=flat-square)
 ![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=flat-square&logo=python&logoColor=white)
 ![.NET](https://img.shields.io/badge/.NET-9.0%20|%2010.0-512BD4?style=flat-square&logo=dotnet)
 ![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
@@ -22,6 +22,7 @@
 | [CartService](./CartService/) | 电商购物车微服务 | FastAPI, PostgreSQL, SQLAlchemy | ✅ Active |
 | [NovelTTSApp](./NovelTTSApp/) | 小说转有声书 AI 应用 | .NET 10, 智谱 GLM-TTS, NAudio | ✅ Active |
 | [EpubToSplitTxt](./EpubToSplitTxt/) | Epub 电子书章节切分工具 | .NET 9, VersOne.Epub | ✅ Active |
+| [MindMates](./MindMates/) | 心理健康 AI 伴侣平台 | Vue 3, .NET 10, FastAPI, MiMo | ✅ Active |
 
 ---
 
@@ -44,6 +45,12 @@ HelloQoder/
 ├── EpubToSplitTxt/          # 📖 Epub 切分工具
 │   ├── EpubConverter.cs     # Epub 解析器
 │   ├── TextSplitter.cs      # 章节切分器
+│   └── README.md            # 项目文档
+│
+├── MindMates/               # 🧠 心理健康 AI 平台
+│   ├── frontend/            # Vue 3 前端
+│   ├── backend-business/    # .NET 10 业务后端
+│   ├── backend-ai/          # Python AI 后端
 │   └── README.md            # 项目文档
 │
 └── README.md                # 本文件
@@ -84,15 +91,26 @@ Epub 电子书预处理系统，将 `.epub` 格式电子书转换为纯文本并
 
 ---
 
+### 🧠 MindMates
+
+心理健康 AI 伴侣平台，提供 7x24 小时智能心理咨询服务。
+
+- **技术栈**: Vue 3 + TypeScript / .NET 10 / Python FastAPI / MiMo
+- **功能**: AI 对话、危机检测、RAG 增强、移动端支持
+- **架构**: 前后端分离 + AI 微服务
+- **文档**: [查看详情](./MindMates/README.md)
+
+---
+
 ## 🔧 技术栈总览
 
 | 领域 | 技术 |
 |------|------|
-| **后端服务** | Python, FastAPI, SQLAlchemy |
-| **桌面应用** | .NET 9/10, C# 13 |
-| **AI 集成** | 智谱 GLM-TTS, 声音克隆 |
-| **数据库** | PostgreSQL |
-| **音频处理** | NAudio |
+| **后端服务** | Python, FastAPI, .NET 10 |
+| **前端** | Vue 3, TypeScript, Vite |
+| **AI 集成** | 智谱 GLM-TTS, 小米 MiMo, LangChain |
+| **数据库** | PostgreSQL, Milvus |
+| **部署** | Docker Compose |
 
 ---
 

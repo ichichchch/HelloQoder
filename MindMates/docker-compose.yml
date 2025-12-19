@@ -28,8 +28,8 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        VITE_API_URL: ""
-        VITE_AI_API_URL: http://8.138.89.167/ai
+        VITE_API_URL: /api
+        VITE_AI_API_URL: /ai
     container_name: mindmates-frontend
     restart: unless-stopped
     networks:

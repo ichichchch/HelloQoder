@@ -2,33 +2,33 @@ import request from './request'
 import type { ChatSession, ChatMessage, SendMessageResponse, MemoryStats } from '@/types'
 
 // AI后端直接调用（记忆系统功能）
-const AI_API_URL = import.meta.env.VITE_AI_API_URL || 'http://localhost:8000'
+const AI_API_URL = import.meta.env.VITE_AI_API_URL || '/ai'
 
 export const chatApi = {
   // 会话管理
   getSessions(): Promise<ChatSession[]> {
-    return request.get('/api/chat/sessions')
+    return request.get('/chat/sessions')
   },
 
   getSession(sessionId: string): Promise<ChatSession> {
-    return request.get(`/api/chat/sessions/${sessionId}`)
+    return request.get(`/chat/sessions/${sessionId}`)
   },
 
   createSession(): Promise<ChatSession> {
-    return request.post('/api/chat/sessions')
+    return request.post('/chat/sessions')
   },
 
   deleteSession(sessionId: string): Promise<void> {
-    return request.delete(`/api/chat/sessions/${sessionId}`)
+    return request.delete(`/chat/sessions/${sessionId}`)
   },
 
   // 消息管理
   getMessages(sessionId: string): Promise<ChatMessage[]> {
-    return request.get(`/api/chat/sessions/${sessionId}/messages`)
+    return request.get(`/chat/sessions/${sessionId}/messages`)
   },
 
   sendMessage(sessionId: string, content: string): Promise<SendMessageResponse> {
-    return request.post(`/api/chat/sessions/${sessionId}/messages`, { content })
+    return request.post(`/chat/sessions/${sessionId}/messages`, { content })
   },
 
   // ===================

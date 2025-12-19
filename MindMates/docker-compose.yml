@@ -27,9 +27,6 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-      args:
-        VITE_API_URL: /api
-        VITE_AI_API_URL: /ai
     container_name: mindmates-frontend
     restart: unless-stopped
     labels:

@@ -2,7 +2,7 @@ import request from './request'
 import type { ChatSession, ChatMessage, SendMessageResponse, MemoryStats } from '@/types'
 
 // AI后端直接调用（记忆系统功能）
-const AI_API_URL = import.meta.env.VITE_AI_API_URL || '/ai'
+const AI_API_URL = '/ai'
 
 export const chatApi = {
   // 会话管理

@@ -32,6 +32,8 @@ services:
         VITE_AI_API_URL: /ai
     container_name: mindmates-frontend
     restart: unless-stopped
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
     networks:
       - mindmates-network
 
@@ -54,6 +56,8 @@ services:
       postgres:
         condition: service_healthy
     restart: unless-stopped
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
     healthcheck:
       test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:5000/health || exit 1"]
       interval: 30s
@@ -81,6 +85,8 @@ services:
       - RAG_SIMILARITY_THRESHOLD=0.4
       - DEBUG=false
     restart: unless-stopped
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
       interval: 30s
@@ -126,6 +132,27 @@ services:
       timeout: 5s
       retries: 5
     restart: unless-stopped
+    networks:
+      - mindmates-network
+
+  # =============================================================================
+  # Watchtower - 自动更新容器
+  # =============================================================================
+  watchtower:
+    image: containrrr/watchtower
+    container_name: watchtower
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      # 每 24 小时检查一次 (单位：秒)
+      - WATCHTOWER_POLL_INTERVAL=86400
+      # 更新后删除旧镜像（节省磁盘空间）
+      - WATCHTOWER_CLEANUP=true
+      # 仅更新带有特定 Label 的容器（安全策略）
+      - WATCHTOWER_LABEL_ENABLE=true
+      # 时区设置
+      - TZ=Asia/Shanghai
     networks:
       - mindmates-network
 

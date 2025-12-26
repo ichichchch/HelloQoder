@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![Projects](https://img.shields.io/badge/Projects-4-blue?style=flat-square)
+![Projects](https://img.shields.io/badge/Projects-5-blue?style=flat-square)
 ![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=flat-square&logo=python&logoColor=white)
 ![.NET](https://img.shields.io/badge/.NET-9.0%20|%2010.0-512BD4?style=flat-square&logo=dotnet)
 ![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
@@ -23,6 +23,7 @@
 | [NovelTTSApp](./NovelTTSApp/) | 小说转有声书 AI 应用 | .NET 10, 智谱 GLM-TTS, NAudio | ✅ Active |
 | [EpubToSplitTxt](./EpubToSplitTxt/) | Epub 电子书章节切分工具 | .NET 9, VersOne.Epub | ✅ Active |
 | [MindMates](./MindMates/) | 心理健康 AI 伴侣平台 | Vue 3, .NET 10, FastAPI, MiMo | ✅ Active |
+| [BatchClip](./BatchClip/) | 自动化视频批量剪辑工具 | FastAPI, Streamlit, FFmpeg | ✅ Active |
 
 ---
 
@@ -52,6 +53,11 @@ HelloQoder/
 │   ├── backend-business/    # .NET 10 业务后端
 │   ├── backend-ai/          # Python AI 后端
 │   └── README.md            # 项目文档
+│
+├── BatchClip/               # 🎬 视频批量剪辑工具
+│   ├── backend/             # FastAPI 后端
+│   ├── frontend/            # Streamlit 前端
+│   └── start.bat            # 启动脚本
 │
 └── README.md                # 本文件
 ```
@@ -102,6 +108,17 @@ Epub 电子书预处理系统，将 `.epub` 格式电子书转换为纯文本并
 
 ---
 
+### 🎬 BatchClip
+
+自动化视频批量剪辑工具，AI 分析素材并自动生成粗剪视频。
+
+- **技术栈**: Python / FastAPI / Streamlit / FFmpeg
+- **功能**: 视频上传、AI 素材分析、自动粗剪、批量处理
+- **架构**: 前后端分离
+- **文档**: [查看详情](./BatchClip/README.md)
+
+---
+
 ## 🔧 技术栈总览
 
 | 领域 | 技术 |
@@ -110,6 +127,7 @@ Epub 电子书预处理系统，将 `.epub` 格式电子书转换为纯文本并
 | **前端** | Vue 3, TypeScript, Vite |
 | **AI 集成** | 智谱 GLM-TTS, 小米 MiMo, LangChain |
 | **数据库** | PostgreSQL, Milvus |
+| **视频处理** | FFmpeg |
 | **部署** | Docker Compose |
 
 ---

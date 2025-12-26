@@ -1,0 +1,8 @@
+# Streamlit UI
+streamlit>=1.40.0
+
+# Network
+requests>=2.32.0
+httpx>=0.27.0
+# File handling
+python-multipart==0.0.6

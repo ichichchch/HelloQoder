@@ -1,0 +1,99 @@
+{
+  "name": "al-agent",
+  "displayName": "AL Agent",
+  "description": "An autonomous coding agent VS Code Extension",
+  "version": "0.1.0",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Machine Learning",
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "al-agent-sidebar",
+          "title": "AL Agent",
+          "icon": "resources/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "al-agent-sidebar": [
+        {
+          "type": "webview",
+          "id": "al-agent.chatView",
+          "name": "Chat"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "al-agent.openChat",
+        "title": "Open AL Agent Chat"
+      },
+      {
+        "command": "al-agent.clearHistory",
+        "title": "Clear Chat History"
+      }
+    ],
+    "configuration": {
+      "title": "AL Agent",
+      "properties": {
+        "alagent.agentApiUrl": {
+          "type": "string",
+          "default": "http://localhost:5000",
+          "description": "URL of the .NET Agent API"
+        },
+        "alagent.ragApiUrl": {
+          "type": "string",
+          "default": "http://localhost:8000",
+          "description": "URL of the Python RAG API"
+        },
+        "alagent.openaiApiKey": {
+          "type": "string",
+          "default": "",
+          "description": "OpenAI API Key (will be stored securely)"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run build",
+    "build": "npm run build:webview && npm run build:extension",
+    "build:extension": "esbuild ./src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node",
+    "build:webview": "vite build",
+    "watch": "concurrently \"npm run watch:extension\" \"npm run watch:webview\"",
+    "watch:extension": "esbuild ./src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node --watch",
+    "watch:webview": "vite build --watch",
+    "lint": "eslint src --ext ts,tsx"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/react": "^18.2.45",
+    "@types/react-dom": "^18.2.18",
+    "@types/vscode": "^1.85.0",
+    "@typescript-eslint/eslint-plugin": "^6.15.0",
+    "@typescript-eslint/parser": "^6.15.0",
+    "@vitejs/plugin-react": "^4.2.1",
+    "concurrently": "^8.2.2",
+    "esbuild": "^0.19.11",
+    "eslint": "^8.56.0",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.10"
+  },
+  "dependencies": {
+    "@vscode/webview-ui-toolkit": "^1.4.0",
+    "axios": "^1.6.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "zod": "^3.22.4"
+  }
+}

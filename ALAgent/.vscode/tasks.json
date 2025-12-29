@@ -1,0 +1,71 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "npm",
+      "script": "watch",
+      "path": "frontend-extension",
+      "problemMatcher": "$tsc-watch",
+      "isBackground": true,
+      "label": "npm: watch - frontend-extension"
+    },
+    {
+      "type": "npm",
+      "script": "build",
+      "path": "frontend-extension",
+      "problemMatcher": "$tsc",
+      "label": "npm: build - frontend-extension"
+    },
+    {
+      "label": "Start .NET Agent",
+      "type": "shell",
+      "command": "dotnet",
+      "args": ["run", "--urls=http://localhost:5000"],
+      "options": {
+        "cwd": "${workspaceFolder}/backend-agent"
+      },
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": {
+          "regexp": "^(.*)$",
+          "file": 1,
+          "location": 2,
+          "message": 3
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^Building...",
+          "endsPattern": "^Now listening on"
+        }
+      }
+    },
+    {
+      "label": "Start RAG Service",
+      "type": "shell",
+      "command": "fastapi",
+      "args": ["dev", "app/main.py", "--port", "8000"],
+      "options": {
+        "cwd": "${workspaceFolder}/backend-rag"
+      },
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": {
+          "regexp": "^(.*)$",
+          "file": 1,
+          "location": 2,
+          "message": 3
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^INFO:",
+          "endsPattern": "^Uvicorn running"
+        }
+      }
+    },
+    {
+      "label": "Start All Services",
+      "dependsOn": ["Start .NET Agent", "Start RAG Service"],
+      "dependsOrder": "parallel"
+    }
+  ]
+}

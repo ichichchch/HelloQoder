@@ -1,0 +1,17 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Run Extension",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}/frontend-extension"
+      ],
+      "outFiles": [
+        "${workspaceFolder}/frontend-extension/dist/**/*.js"
+      ],
+      "preLaunchTask": "npm: watch - frontend-extension"
+    }
+  ]
+}

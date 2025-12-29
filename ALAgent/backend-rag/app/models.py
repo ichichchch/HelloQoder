@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Literal, Optional
 
 
 class QueryRequest(BaseModel):
@@ -43,6 +43,7 @@ class HealthResponse(BaseModel):
     status: str
     version: str = "0.1.0"
     chroma_connected: bool = False
+    lightrag_healthy: bool = False
 
 
 # ==================== Loader Models ====================
@@ -87,3 +88,56 @@ class LoadResponse(BaseModel):
     documents_loaded: int = 0
     chunks_created: int = 0
     sources: list[str] = Field(default_factory=list)
+
+
+# ==================== LightRAG Models ====================
+
+class LightRAGInsertRequest(BaseModel):
+    """请求向 LightRAG 插入文档。
+    
+    文档会被处理以提取实体、关系，并构建知识图谱。
+    """
+    documents: list[str] = Field(..., description="要插入的文档列表")
+    workspace_path: str | None = Field(default=None, description="工作空间路径（用于命名空间隔离）")
+
+
+class LightRAGQueryRequest(BaseModel):
+    """请求查询 LightRAG。
+    
+    支持多种查询模式：
+    - naive: 标准向量检索（类似传统 RAG）
+    - local: 使用局部知识图谱上下文（实体 + 邻居）
+    - global: 使用全局图谱模式和社区
+    - hybrid: 结合 local 和 global 方法
+    - mix: 结合所有模式 + 重排序（启用 reranker 时推荐）
+    """
+    query: str = Field(..., description="查询字符串")
+    workspace_path: str | None = Field(default=None, description="工作空间路径")
+    mode: Literal["naive", "local", "global", "hybrid", "mix"] | None = Field(
+        default=None, description="查询模式（默认使用配置值）"
+    )
+    top_k: int = Field(default=5, ge=1, le=20, description="返回结果数量")
+    only_need_context: bool = Field(default=False, description="仅返回上下文，不进行 LLM 生成")
+
+
+class LightRAGInsertResponse(BaseModel):
+    """LightRAG 插入操作响应。"""
+    success: bool
+    documents_inserted: int = 0
+    message: str = ""
+
+
+class LightRAGQueryResponse(BaseModel):
+    """LightRAG 查询响应。"""
+    success: bool
+    query: str
+    mode: str
+    result: str | None = None
+    error: str | None = None
+
+
+class LightRAGStatsResponse(BaseModel):
+    """LightRAG 统计信息响应。"""
+    working_dir: str | None = None
+    status: str
+    message: str | None = None

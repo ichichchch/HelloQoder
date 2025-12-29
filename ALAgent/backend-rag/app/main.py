@@ -13,9 +13,13 @@ from app.models import (
     IndexRequest, IndexResponse,
     HealthResponse,
     WebCrawlRequest, GitHubRepoRequest, PDFLoadRequest, URLLoadRequest, LoadResponse,
+    LightRAGInsertRequest, LightRAGInsertResponse,
+    LightRAGQueryRequest, LightRAGQueryResponse,
+    LightRAGStatsResponse,
 )
 from app.vector_store import get_vector_store
 from app.loaders import WebPageLoader, GitHubRepoLoader, PDFLoader, URLLoader
+from app.lightrag_service import get_lightrag_service
 
 # Configure logging
 logging.basicConfig(
@@ -56,9 +60,11 @@ app.add_middleware(
 async def health_check():
     """Health check endpoint."""
     store = get_vector_store()
+    lightrag = get_lightrag_service()
     return HealthResponse(
         status="healthy",
-        chroma_connected=store.is_healthy()  # Keep property name for compatibility
+        chroma_connected=store.is_healthy(),
+        lightrag_healthy=lightrag.is_healthy(),
     )
 
 
@@ -134,6 +140,10 @@ async def root():
             "load_github": "POST /api/load/github",
             "load_pdf": "POST /api/load/pdf",
             "load_url": "POST /api/load/url",
+            "lightrag_insert": "POST /api/lightrag/insert",
+            "lightrag_query": "POST /api/lightrag/query",
+            "lightrag_context": "POST /api/lightrag/context",
+            "lightrag_stats": "GET /api/lightrag/stats",
         }
     }
 
@@ -343,3 +353,107 @@ async def load_from_url(request: URLLoadRequest):
     except Exception as e:
         logger.error(f"URL load error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+# ==================== LightRAG Endpoints ====================
+
+@app.post("/api/lightrag/insert", response_model=LightRAGInsertResponse)
+async def lightrag_insert(request: LightRAGInsertRequest):
+    """
+    向 LightRAG 插入文档。
+    
+    文档会被处理以：
+    - 提取实体（Entity Extraction）
+    - 提取关系（Relationship Extraction）
+    - 构建知识图谱（Knowledge Graph Construction）
+    - 生成向量嵌入（Vector Embedding Generation）
+    """
+    try:
+        service = get_lightrag_service()
+        result = await service.insert_documents(
+            documents=request.documents,
+            workspace_path=request.workspace_path,
+        )
+        return LightRAGInsertResponse(**result)
+        
+    except Exception as e:
+        logger.error(f"LightRAG insert error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/lightrag/query", response_model=LightRAGQueryResponse)
+async def lightrag_query(request: LightRAGQueryRequest):
+    """
+    使用 LightRAG 进行查询。
+    
+    支持多种查询模式：
+    - naive: 标准向量检索（类似传统 RAG）
+    - local: 使用局部知识图谱上下文（实体 + 邻居关系）
+    - global: 使用全局图谱模式和社区结构
+    - hybrid: 结合 local 和 global 方法
+    - mix: 结合所有模式 + 重排序（启用 reranker 时推荐）
+    """
+    try:
+        service = get_lightrag_service()
+        result = await service.query(
+            query=request.query,
+            workspace_path=request.workspace_path,
+            mode=request.mode,
+            top_k=request.top_k,
+            only_need_context=request.only_need_context,
+        )
+        return LightRAGQueryResponse(**result)
+        
+    except Exception as e:
+        logger.error(f"LightRAG query error: {e}")
+        return LightRAGQueryResponse(
+            success=False,
+            query=request.query,
+            mode=request.mode or "hybrid",
+            error=str(e),
+        )
+
+
+@app.post("/api/lightrag/context", response_model=LightRAGQueryResponse)
+async def lightrag_get_context(request: LightRAGQueryRequest):
+    """
+    从 LightRAG 获取上下文（不进行 LLM 生成）。
+    
+    当你想要使用自己的 LLM 处理检索到的上下文时非常有用。
+    """
+    try:
+        service = get_lightrag_service()
+        result = await service.query_with_context(
+            query=request.query,
+            workspace_path=request.workspace_path,
+            mode=request.mode,
+            top_k=request.top_k,
+        )
+        return LightRAGQueryResponse(**result)
+        
+    except Exception as e:
+        logger.error(f"LightRAG context error: {e}")
+        return LightRAGQueryResponse(
+            success=False,
+            query=request.query,
+            mode=request.mode or "hybrid",
+            error=str(e),
+        )
+
+
+@app.get("/api/lightrag/stats", response_model=LightRAGStatsResponse)
+async def lightrag_stats(workspace_path: str | None = None):
+    """
+    获取 LightRAG 知识图谱统计信息。
+    """
+    try:
+        service = get_lightrag_service()
+        stats = await service.get_graph_stats(workspace_path)
+        return LightRAGStatsResponse(**stats)
+        
+    except Exception as e:
+        logger.error(f"LightRAG stats error: {e}")
+        return LightRAGStatsResponse(
+            status="error",
+            message=str(e),
+        )

@@ -16,6 +16,7 @@ from pymilvus import (
     Collection,
 )
 from langchain_openai import OpenAIEmbeddings
+from langchain_community.embeddings import DashScopeEmbeddings
 
 from app.config import get_settings
 from app.chunker import get_chunker, CodeChunkData
@@ -45,9 +46,9 @@ class VectorStore:
     def __init__(self):
         self.settings = get_settings()
         self._connected = False
-        self._embeddings: OpenAIEmbeddings | None = None
+        self._embeddings: OpenAIEmbeddings | DashScopeEmbeddings | None = None
         self._collections: dict[str, Collection] = {}
-        self._embedding_dim = 1536  # text-embedding-3-small dimension
+        self._embedding_dim = self.settings.text_embedding_dim
 
     def _ensure_connection(self) -> None:
         """Lazy initialization of Milvus connection."""
@@ -65,13 +66,27 @@ class VectorStore:
                 f"Milvus connected at {self.settings.milvus_host}:{self.settings.milvus_port}"
             )
 
-    def _ensure_embeddings(self) -> OpenAIEmbeddings:
+    def _ensure_embeddings(self) -> OpenAIEmbeddings | DashScopeEmbeddings:
         """Lazy initialization of embedding model."""
         if self._embeddings is None:
-            self._embeddings = OpenAIEmbeddings(
-                model=self.settings.embedding_model,
-                openai_api_key=self.settings.openai_api_key,
-            )
+            # 优先使用 DashScope
+            if self.settings.dashscope_api_key:
+                logger.info(f"Using DashScope embedding with key: {self.settings.dashscope_api_key[:8]}...")
+                self._embeddings = DashScopeEmbeddings(
+                    model=self.settings.text_embedding_model,
+                    dashscope_api_key=self.settings.dashscope_api_key,
+                )
+            # 回退到 OpenAI
+            elif self.settings.openai_api_key:
+                logger.info(f"Using OpenAI embedding with key: {self.settings.openai_api_key[:8]}...")
+                self._embeddings = OpenAIEmbeddings(
+                    model=self.settings.text_embedding_model,
+                    api_key=self.settings.openai_api_key,
+                )
+            else:
+                raise ValueError(
+                    "No embedding API key configured. Set DASHSCOPE_API_KEY or OPENAI_API_KEY in .env"
+                )
         return self._embeddings
 
     def _get_collection_name(self, workspace_path: str) -> str:

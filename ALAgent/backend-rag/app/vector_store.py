@@ -47,8 +47,10 @@ class VectorStore:
         self.settings = get_settings()
         self._connected = False
         self._embeddings: OpenAIEmbeddings | DashScopeEmbeddings | None = None
+        self._multimodal_embeddings: Any = None  # For multimodal embedding model
         self._collections: dict[str, Collection] = {}
         self._embedding_dim = self.settings.text_embedding_dim
+        self._multimodal_embedding_dim = self.settings.multimodal_embedding_dim
 
     def _ensure_connection(self) -> None:
         """Lazy initialization of Milvus connection."""
@@ -65,6 +67,21 @@ class VectorStore:
             logger.info(
                 f"Milvus connected at {self.settings.milvus_host}:{self.settings.milvus_port}"
             )
+
+    def _ensure_multimodal_embeddings(self) -> Any:
+        """Lazy initialization of multimodal embedding model (qwen2.5-vl-embedding)."""
+        if self._multimodal_embeddings is None:
+            if not self.settings.dashscope_api_key:
+                raise ValueError(
+                    "DashScope API key required for multimodal embeddings. Set DASHSCOPE_API_KEY in .env"
+                )
+            
+            import dashscope
+            dashscope.api_key = self.settings.dashscope_api_key
+            self._multimodal_embeddings = dashscope.MultiModalEmbedding
+            logger.info(f"Using DashScope multimodal embedding model: {self.settings.multimodal_embedding_model}")
+        
+        return self._multimodal_embeddings
 
     def _ensure_embeddings(self) -> OpenAIEmbeddings | DashScopeEmbeddings:
         """Lazy initialization of embedding model."""
@@ -270,6 +287,12 @@ class VectorStore:
         collection = self._get_global_collection()
         embeddings = self._ensure_embeddings()
         
+        # Check if document already exists
+        source_hash = hashlib.md5(source.encode()).hexdigest()[:8]
+        if self._document_exists(collection, source_hash, source_type):
+            logger.info(f"Document already indexed, skipping: {source}")
+            return 0
+        
         # Split content into chunks
         chunks = self._split_text(content, self.settings.max_chunk_size, self.settings.chunk_overlap)
         
@@ -280,7 +303,6 @@ class VectorStore:
         chunk_embeddings = embeddings.embed_documents(chunks)
         
         # Generate unique IDs
-        source_hash = hashlib.md5(source.encode()).hexdigest()[:8]
         ids = [f"{source_hash}:{i}" for i in range(len(chunks))]
         
         title = metadata.get("title", "") if metadata else ""
@@ -300,6 +322,264 @@ class VectorStore:
         
         logger.info(f"Indexed document from {source}: {len(chunks)} chunks")
         return len(chunks)
+
+    def _document_exists(self, collection: Collection, source_hash: str, source_type: str) -> bool:
+        """
+        Check if a document with the given source hash already exists in the collection.
+        """
+        try:
+            collection.load()
+            if collection.num_entities == 0:
+                return False
+            
+            # Query by ID prefix (source_hash)
+            expr = f'id like "{source_hash}:%"'
+            results = collection.query(
+                expr=expr,
+                output_fields=["id"],
+                limit=1,
+            )
+            
+            return len(results) > 0
+            
+        except Exception as e:
+            logger.debug(f"Error checking document existence: {e}")
+            return False
+
+    def _get_multimodal_collection(self) -> Collection:
+        """Get or create the collection for multimodal documents (images/videos)."""
+        collection_name = "multimodal_documents"
+        
+        if collection_name not in self._collections:
+            self._ensure_connection()
+            
+            if utility.has_collection(collection_name):
+                self._collections[collection_name] = Collection(collection_name)
+            else:
+                # Create collection with schema for multimodal content
+                fields = [
+                    FieldSchema(name="id", dtype=DataType.VARCHAR, is_primary=True, max_length=512),
+                    FieldSchema(name="embedding", dtype=DataType.FLOAT_VECTOR, dim=self._multimodal_embedding_dim),
+                    FieldSchema(name="content", dtype=DataType.VARCHAR, max_length=65535),  # alt text / description
+                    FieldSchema(name="media_url", dtype=DataType.VARCHAR, max_length=2048),
+                    FieldSchema(name="media_type", dtype=DataType.VARCHAR, max_length=32),  # "image" or "video"
+                    FieldSchema(name="source_page", dtype=DataType.VARCHAR, max_length=2048),
+                    FieldSchema(name="alt_text", dtype=DataType.VARCHAR, max_length=1024),
+                    FieldSchema(name="width", dtype=DataType.INT64),
+                    FieldSchema(name="height", dtype=DataType.INT64),
+                ]
+                
+                schema = CollectionSchema(fields, description="Multimodal documents (images and videos)")
+                collection = Collection(collection_name, schema)
+                
+                index_params = {
+                    "metric_type": "COSINE",
+                    "index_type": "IVF_FLAT",
+                    "params": {"nlist": 1024}
+                }
+                collection.create_index(field_name="embedding", index_params=index_params)
+                
+                self._collections[collection_name] = collection
+        
+        return self._collections[collection_name]
+
+    def index_multimodal(
+        self,
+        content: str,
+        media_data: str,  # Base64 encoded image/video data
+        media_type: str,  # "image" or "video"
+        source: str,
+        source_page: str,
+        metadata: dict | None = None,
+    ) -> int:
+        """
+        Index a multimodal document (image or video) using multimodal embedding.
+        
+        Uses qwen2.5-vl-embedding model for generating embeddings from image/video.
+        Returns 1 if successful, 0 otherwise.
+        """
+        try:
+            collection = self._get_multimodal_collection()
+            
+            # Generate unique ID and check if already exists
+            source_hash = hashlib.md5(source.encode()).hexdigest()[:16]
+            doc_id = f"mm_{source_hash}"
+            
+            if self._multimodal_exists(collection, doc_id):
+                logger.debug(f"Multimodal {media_type} already indexed, skipping: {source}")
+                return 0
+            
+            multimodal_emb = self._ensure_multimodal_embeddings()
+            
+            # Prepare input for multimodal embedding
+            # Format: data:image/jpeg;base64,xxx or video format
+            if media_type == "image":
+                mime_type = self._detect_image_mime(media_data)
+                data_url = f"data:{mime_type};base64,{media_data}"
+            else:
+                # For videos, we typically embed the thumbnail/poster
+                data_url = f"data:image/jpeg;base64,{media_data}"
+            
+            # Call DashScope multimodal embedding API
+            response = multimodal_emb.call(
+                model=self.settings.multimodal_embedding_model,
+                input=[
+                    {"image": data_url},
+                ],
+                auto_truncation=True,
+            )
+            
+            if response.status_code != 200:
+                logger.warning(f"Multimodal embedding failed: {response.message}")
+                return 0
+            
+            # Extract embedding from response
+            embedding = response.output["embeddings"][0]["embedding"]
+            
+            # Prepare metadata
+            alt_text = metadata.get("alt_text", "") if metadata else ""
+            width = metadata.get("width", 0) if metadata else 0
+            height = metadata.get("height", 0) if metadata else 0
+            
+            entities = [
+                [doc_id],
+                [embedding],
+                [content[:65000]],  # Truncate if too long
+                [source[:2000]],
+                [media_type],
+                [source_page[:2000]],
+                [alt_text[:1000]],
+                [width or 0],
+                [height or 0],
+            ]
+            
+            collection.insert(entities)
+            collection.flush()
+            
+            logger.debug(f"Indexed multimodal {media_type} from {source}")
+            return 1
+            
+        except Exception as e:
+            logger.error(f"Multimodal indexing error: {e}")
+            return 0
+
+    def _multimodal_exists(self, collection: Collection, doc_id: str) -> bool:
+        """
+        Check if a multimodal document with the given ID already exists.
+        """
+        try:
+            collection.load()
+            if collection.num_entities == 0:
+                return False
+            
+            # Query by exact ID
+            expr = f'id == "{doc_id}"'
+            results = collection.query(
+                expr=expr,
+                output_fields=["id"],
+                limit=1,
+            )
+            
+            return len(results) > 0
+            
+        except Exception as e:
+            logger.debug(f"Error checking multimodal existence: {e}")
+            return False
+
+    def _detect_image_mime(self, base64_data: str) -> str:
+        """Detect image MIME type from base64 data header."""
+        # Check first few bytes to detect format
+        if base64_data.startswith("/9j/"):
+            return "image/jpeg"
+        elif base64_data.startswith("iVBOR"):
+            return "image/png"
+        elif base64_data.startswith("R0lGO"):
+            return "image/gif"
+        elif base64_data.startswith("UklGR"):
+            return "image/webp"
+        else:
+            return "image/jpeg"  # Default to JPEG
+
+    def query_multimodal(
+        self,
+        query: str | None = None,
+        image_data: str | None = None,
+        top_k: int = 5,
+        media_type: str | None = None,
+    ) -> list[dict]:
+        """
+        Query the multimodal collection.
+        
+        Can search by text query or by image similarity.
+        """
+        try:
+            collection = self._get_multimodal_collection()
+            
+            collection.load()
+            if collection.num_entities == 0:
+                return []
+            
+            # Generate query embedding
+            if image_data:
+                # Use multimodal embedding for image query
+                multimodal_emb = self._ensure_multimodal_embeddings()
+                mime_type = self._detect_image_mime(image_data)
+                data_url = f"data:{mime_type};base64,{image_data}"
+                
+                response = multimodal_emb.call(
+                    model=self.settings.multimodal_embedding_model,
+                    input=[{"image": data_url}],
+                    auto_truncation=True,
+                )
+                
+                if response.status_code != 200:
+                    logger.warning(f"Multimodal query embedding failed: {response.message}")
+                    return []
+                
+                query_embedding = response.output["embeddings"][0]["embedding"]
+            elif query:
+                # Use text embedding for text query
+                embeddings = self._ensure_embeddings()
+                query_embedding = embeddings.embed_query(query)
+            else:
+                return []
+            
+            search_params = {
+                "metric_type": "COSINE",
+                "params": {"nprobe": 10}
+            }
+            
+            # Build expression filter if media_type specified
+            expr = f'media_type == "{media_type}"' if media_type else None
+            
+            results = collection.search(
+                data=[query_embedding],
+                anns_field="embedding",
+                param=search_params,
+                limit=top_k,
+                expr=expr,
+                output_fields=["content", "media_url", "media_type", "source_page", "alt_text", "width", "height"],
+            )
+            
+            items = []
+            if results and len(results) > 0:
+                for hit in results[0]:
+                    items.append({
+                        "media_url": hit.entity.get("media_url"),
+                        "media_type": hit.entity.get("media_type"),
+                        "source_page": hit.entity.get("source_page"),
+                        "alt_text": hit.entity.get("alt_text"),
+                        "content": hit.entity.get("content"),
+                        "width": hit.entity.get("width"),
+                        "height": hit.entity.get("height"),
+                        "score": float(hit.distance),
+                    })
+            
+            return items
+            
+        except Exception as e:
+            logger.error(f"Multimodal query error: {e}")
+            return []
 
     def _split_text(self, text: str, max_size: int, overlap: int) -> list[str]:
         """Split text into chunks with overlap."""
@@ -469,6 +749,42 @@ class VectorStore:
             return True
         except Exception:
             return False
+
+    def get_indexed_sources(self, source_type: str | None = None) -> list[str]:
+        """
+        Get list of already indexed document sources.
+        Useful for resuming interrupted indexing jobs.
+        
+        Args:
+            source_type: Filter by source type (e.g., "web_multimodal", "web", "pdf")
+        
+        Returns:
+            List of source URLs/paths that have been indexed
+        """
+        try:
+            collection = self._get_global_collection()
+            collection.load()
+            
+            if collection.num_entities == 0:
+                return []
+            
+            # Build expression filter if source_type specified
+            expr = f'source_type == "{source_type}"' if source_type else None
+            
+            # Query all unique sources
+            results = collection.query(
+                expr=expr,
+                output_fields=["source"],
+                limit=10000,  # Large limit to get all sources
+            )
+            
+            # Extract unique sources
+            sources = list(set(r["source"] for r in results))
+            return sorted(sources)
+            
+        except Exception as e:
+            logger.error(f"Error getting indexed sources: {e}")
+            return []
 
 
 # Singleton instance

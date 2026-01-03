@@ -287,10 +287,11 @@ class VectorStore:
         collection = self._get_global_collection()
         embeddings = self._ensure_embeddings()
         
-        # Check if document already exists
-        source_hash = hashlib.md5(source.encode()).hexdigest()[:8]
-        if self._document_exists(collection, source_hash, source_type):
-            logger.info(f"Document already indexed, skipping: {source}")
+        # Check if document already exists (use content hash instead of source path)
+        # This way, only documents with identical content will be skipped
+        content_hash = hashlib.md5(content.encode('utf-8')).hexdigest()[:12]
+        if self._document_exists(collection, content_hash, source_type):
+            logger.info(f"Document with identical content already indexed, skipping: {source}")
             return 0
         
         # Split content into chunks
@@ -299,41 +300,88 @@ class VectorStore:
         if not chunks:
             return 0
 
-        # Generate embeddings
-        chunk_embeddings = embeddings.embed_documents(chunks)
+        logger.info(f"[VectorStore] 开始向量化 {len(chunks)} 个 chunks...")
         
-        # Generate unique IDs
-        ids = [f"{source_hash}:{i}" for i in range(len(chunks))]
+        # Generate embeddings in batches to avoid API timeout
+        batch_size = 10  # 每批 10 个 chunks
+        all_embeddings = []
+        
+        for i in range(0, len(chunks), batch_size):
+            batch = chunks[i:i + batch_size]
+            batch_num = i // batch_size + 1
+            total_batches = (len(chunks) + batch_size - 1) // batch_size
+            
+            logger.info(f"[VectorStore] 向量化批次 {batch_num}/{total_batches} ({len(batch)} chunks)...")
+            
+            try:
+                batch_embeddings = embeddings.embed_documents(batch)
+                all_embeddings.extend(batch_embeddings)
+            except Exception as e:
+                logger.error(f"[VectorStore] 向量化批次 {batch_num} 失败: {e}")
+                raise
+        
+        # Generate unique IDs (use content hash to ensure uniqueness)
+        ids = [f"{content_hash}:{i}" for i in range(len(chunks))]
         
         title = metadata.get("title", "") if metadata else ""
         
-        entities = [
-            ids,
-            chunk_embeddings,
-            chunks,
-            [source] * len(chunks),
-            [source_type] * len(chunks),
-            [title[:500]] * len(chunks),  # Truncate title if too long
-            list(range(len(chunks))),
-        ]
+        # Prepare all entities
+        all_ids = ids
+        all_chunks = chunks
+        all_sources = [source] * len(chunks)
+        all_types = [source_type] * len(chunks)
+        all_titles = [title[:500]] * len(chunks)
+        all_indices = list(range(len(chunks)))
         
-        collection.insert(entities)
+        # Insert in batches to avoid gRPC message size limit (64MB)
+        # Estimate: each embedding ~1536 floats * 4 bytes = 6KB, plus text
+        # Safe batch size: ~500 chunks (~3MB per batch)
+        insert_batch_size = 500
+        total_inserted = 0
+        
+        logger.info(f"[VectorStore] 写入 Milvus（分 {(len(chunks) + insert_batch_size - 1) // insert_batch_size} 批）...")
+        
+        for i in range(0, len(chunks), insert_batch_size):
+            end_idx = min(i + insert_batch_size, len(chunks))
+            batch_num = i // insert_batch_size + 1
+            total_insert_batches = (len(chunks) + insert_batch_size - 1) // insert_batch_size
+            
+            logger.info(f"[VectorStore] 写入批次 {batch_num}/{total_insert_batches} ({end_idx - i} chunks)...")
+            
+            entities = [
+                all_ids[i:end_idx],
+                all_embeddings[i:end_idx],
+                all_chunks[i:end_idx],
+                all_sources[i:end_idx],
+                all_types[i:end_idx],
+                all_titles[i:end_idx],
+                all_indices[i:end_idx],
+            ]
+            
+            try:
+                collection.insert(entities)
+                total_inserted += (end_idx - i)
+            except Exception as e:
+                logger.error(f"[VectorStore] 写入批次 {batch_num} 失败: {e}")
+                raise
+        
         collection.flush()
         
-        logger.info(f"Indexed document from {source}: {len(chunks)} chunks")
-        return len(chunks)
+        logger.info(f"[VectorStore] 完成: {source} -> {total_inserted} chunks")
+        return total_inserted
 
-    def _document_exists(self, collection: Collection, source_hash: str, source_type: str) -> bool:
+    def _document_exists(self, collection: Collection, content_hash: str, source_type: str) -> bool:
         """
-        Check if a document with the given source hash already exists in the collection.
+        Check if a document with the given content hash already exists in the collection.
+        Uses content hash instead of source path to detect true duplicates.
         """
         try:
             collection.load()
             if collection.num_entities == 0:
                 return False
             
-            # Query by ID prefix (source_hash)
-            expr = f'id like "{source_hash}:%"'
+            # Query by ID prefix (content_hash)
+            expr = f'id like "{content_hash}:%"'
             results = collection.query(
                 expr=expr,
                 output_fields=["id"],

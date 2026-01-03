@@ -427,18 +427,18 @@ class GitHubRepoLoader(BaseLoader):
 class PDFLoader(BaseLoader):
     """
     Load content from PDF files.
-    Supports both text-based and scanned PDFs (with OCR).
+    Uses PyMuPDF (fitz) for fast and memory-efficient PDF parsing.
     """
 
     def __init__(
         self,
         file_paths: list[str | Path],
         extract_images: bool = False,
-        use_ocr: bool = False,
+        max_pages: int = 10000,  # 最大页数限制
     ):
         self.file_paths = [Path(p) for p in file_paths]
         self.extract_images = extract_images
-        self.use_ocr = use_ocr
+        self.max_pages = max_pages
 
     def load(self) -> Generator[Document, None, None]:
         """Load PDF files."""
@@ -448,13 +448,19 @@ class PDFLoader(BaseLoader):
                 continue
 
             try:
+                logger.info(f"[PDF] 开始加载: {file_path.name}")
                 yield from self._load_pdf(file_path)
+                logger.info(f"[PDF] 加载完成: {file_path.name}")
             except Exception as e:
-                logger.error(f"Failed to load PDF {file_path}: {e}")
+                logger.error(f"[PDF] 加载失败 {file_path}: {e}")
 
     def _load_pdf(self, file_path: Path) -> Generator[Document, None, None]:
-        """Load a single PDF file."""
-        import pdfplumber
+        """
+        Load a single PDF file using PyMuPDF (fitz).
+        PyMuPDF is much faster and uses less memory than pdfplumber.
+        """
+        import fitz  # PyMuPDF
+        import gc
 
         full_text = []
         metadata = {
@@ -463,32 +469,55 @@ class PDFLoader(BaseLoader):
             "pages": 0,
         }
 
-        with pdfplumber.open(file_path) as pdf:
-            metadata["pages"] = len(pdf.pages)
+        doc = None
+        try:
+            doc = fitz.open(file_path)
+            total_pages = len(doc)
+            metadata["pages"] = total_pages
+            logger.info(f"[PDF] {file_path.name}: 共 {total_pages} 页")
+            
+            # 限制最大页数
+            pages_to_process = min(total_pages, self.max_pages)
+            if total_pages > self.max_pages:
+                logger.warning(f"[PDF] {file_path.name}: 页数过多 ({total_pages})，只处理前 {self.max_pages} 页")
             
             # Extract PDF metadata
-            if pdf.metadata:
-                metadata.update({
-                    k: v for k, v in pdf.metadata.items()
-                    if isinstance(v, (str, int, float))
-                })
+            if doc.metadata:
+                for key in ["title", "author", "subject", "keywords", "creator"]:
+                    if doc.metadata.get(key):
+                        metadata[key] = doc.metadata[key]
 
-            for i, page in enumerate(pdf.pages):
-                # Extract text
-                text = page.extract_text()
-                if text:
-                    full_text.append(f"--- Page {i + 1} ---\n{text}")
-
-                # Extract tables
-                tables = page.extract_tables()
-                for table in tables:
-                    if table:
-                        table_text = self._format_table(table)
-                        full_text.append(table_text)
+            for i in range(pages_to_process):
+                page_num = i + 1
+                try:
+                    # 进度日志（每20页或第一页/最后一页）
+                    if page_num == 1 or page_num == pages_to_process or page_num % 20 == 0:
+                        logger.info(f"[PDF] {file_path.name}: 处理第 {page_num}/{pages_to_process} 页...")
+                    
+                    page = doc[i]
+                    text = page.get_text("text")  # 快速提取文本
+                    
+                    if text and text.strip():
+                        full_text.append(f"--- Page {page_num} ---\n{text.strip()}")
+                    
+                    # 每处理20页，强制垃圾回收
+                    if page_num % 20 == 0:
+                        gc.collect()
+                            
+                except Exception as e:
+                    logger.warning(f"[PDF] {file_path.name} 第 {page_num} 页处理失败: {e}")
+                    continue
+                    
+        finally:
+            # 确保关闭 PDF 释放资源
+            if doc:
+                doc.close()
+            gc.collect()
 
         content = "\n\n".join(full_text)
         
         if content.strip():
+            logger.info(f"[PDF] {file_path.name}: 提取完成，内容长度 {len(content)} 字符")
             yield Document(
                 content=content,
                 source=str(file_path),
@@ -496,6 +525,8 @@ class PDFLoader(BaseLoader):
                 title=file_path.stem,
                 metadata=metadata,
             )
+        else:
+            logger.warning(f"[PDF] {file_path.name}: 未提取到任何文本内容")
 
     def _format_table(self, table: list[list]) -> str:
         """Format extracted table as markdown."""

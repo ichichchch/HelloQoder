@@ -9,6 +9,8 @@ import logging
 import tempfile
 import os
 from pathlib import Path
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
 
 from app.config import get_settings
 from app.models import (
@@ -32,6 +34,10 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
+
+# 线程池用于执行同步阻塞操作（PDF解析等）
+# 只允许 1 个并发，避免多个大 PDF 同时处理卡死系统
+_pdf_executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="pdf_loader")
 
 
 @asynccontextmanager
@@ -395,13 +401,14 @@ async def load_pdfs(
     2. 或在 "urls" 字段输入远程 PDF 链接（多个用逗号分隔）
     3. 两者可以同时使用
     """
+    temp_files = []  # Track temporary files for cleanup
+    
     try:
         store = get_vector_store()
         
         documents_loaded = 0
         chunks_created = 0
         sources = []
-        temp_files = []  # Track temporary files for cleanup
         
         # Process uploaded PDF files
         if files:
@@ -421,36 +428,83 @@ async def load_pdfs(
                 
                 file_paths.append(temp_path)
                 temp_files.append(temp_path)
+                logger.info(f"[PDF API] 文件已保存: {upload_file.filename}")
             
-            # Load uploaded PDFs
+            # Load uploaded PDFs in thread pool to avoid blocking
             if file_paths:
-                loader = PDFLoader(file_paths=file_paths)
-                for doc in loader.load():
-                    count = store.index_document(
-                        content=doc.content,
-                        source=doc.source,
-                        source_type=doc.source_type,
-                        metadata=doc.metadata,
+                logger.info(f"[PDF API] 开始解析 {len(file_paths)} 个 PDF 文件...")
+                
+                def load_pdfs_sync():
+                    """Synchronous PDF loading function to run in thread pool."""
+                    results = []
+                    loader = PDFLoader(file_paths=file_paths)
+                    for doc in loader.load():
+                        results.append(doc)
+                    return results
+                
+                # Run in thread pool with timeout
+                loop = asyncio.get_event_loop()
+                try:
+                    docs = await asyncio.wait_for(
+                        loop.run_in_executor(_pdf_executor, load_pdfs_sync),
+                        timeout=1800.0  # 30分钟超时，支持大型PDF处理
                     )
-                    documents_loaded += 1
-                    chunks_created += count
-                    sources.append(doc.source)
+                    logger.info(f"[PDF API] PDF 解析完成，共 {len(docs)} 个文档")
+                    
+                    # Index documents
+                    for doc in docs:
+                        logger.info(f"[PDF API] 开始向量化: {doc.source}")
+                        count = store.index_document(
+                            content=doc.content,
+                            source=doc.source,
+                            source_type=doc.source_type,
+                            metadata=doc.metadata,
+                        )
+                        documents_loaded += 1
+                        chunks_created += count
+                        sources.append(doc.source)
+                        logger.info(f"[PDF API] 向量化完成: {doc.source}, {count} 个 chunks")
+                        
+                except asyncio.TimeoutError:
+                    logger.error("[PDF API] PDF 解析超时 (30分钟)")
+                    raise HTTPException(status_code=408, detail="PDF 解析超时，文件过大或内容复杂，请尝试拆分文件")
         
         # Process remote PDF URLs
         if urls and urls.strip():
             url_list = [url.strip() for url in urls.split(",") if url.strip()]
+            logger.info(f"[PDF API] 开始加载 {len(url_list)} 个远程 PDF...")
+            
             for url in url_list:
-                loader = URLLoader(url=url)
-                for doc in loader.load():
-                    count = store.index_document(
-                        content=doc.content,
-                        source=doc.source,
-                        source_type=doc.source_type,
-                        metadata=doc.metadata,
+                def load_url_sync(u):
+                    """Synchronous URL loading function."""
+                    results = []
+                    loader = URLLoader(url=u)
+                    for doc in loader.load():
+                        results.append(doc)
+                    return results
+                
+                loop = asyncio.get_event_loop()
+                try:
+                    docs = await asyncio.wait_for(
+                        loop.run_in_executor(_pdf_executor, lambda: load_url_sync(url)),
+                        timeout=600.0  # 10分钟超时（远程下载+解析）
                     )
-                    documents_loaded += 1
-                    chunks_created += count
-                    sources.append(doc.source)
+                    
+                    for doc in docs:
+                        count = store.index_document(
+                            content=doc.content,
+                            source=doc.source,
+                            source_type=doc.source_type,
+                            metadata=doc.metadata,
+                        )
+                        documents_loaded += 1
+                        chunks_created += count
+                        sources.append(doc.source)
+                        logger.info(f"[PDF API] 远程 PDF 向量化完成: {url}")
+                        
+                except asyncio.TimeoutError:
+                    logger.error(f"[PDF API] 远程 PDF 加载超时: {url}")
+                    continue
         
         # Cleanup temporary files
         for temp_file in temp_files:
@@ -469,6 +523,7 @@ async def load_pdfs(
                 sources=[],
             )
         
+        logger.info(f"[PDF API] 全部完成: {documents_loaded} 个文档, {chunks_created} 个 chunks")
         return LoadResponse(
             success=True,
             message=f"Successfully loaded {documents_loaded} PDF files",
@@ -477,6 +532,8 @@ async def load_pdfs(
             sources=sources,
         )
         
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"PDF load error: {e}")
         # Cleanup on error

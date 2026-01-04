@@ -7,173 +7,175 @@
 ![.NET](https://img.shields.io/badge/.NET-9.0%20|%2010.0-512BD4?style=flat-square&logo=dotnet)
 ![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
 
-**Qoder 编写的项目集合**
+**Collection of Projects Written by Qoder**
 
-*AI 驱动的 Agentic Coding 实践*
+*AI-Driven Agentic Coding Practice*
+
+English | [中文](./README_zh.md) | [Русский](./README_ru.md) | [한국어](./README_ko.md) | [日本語](./README_ja.md)
 
 </div>
 
 ---
 
-## 📂 项目列表
+## 📂 Project List
 
-| 项目 | 描述 | 技术栈 | 状态 |
-|------|------|--------|------|
-| [ALAgent](./ALAgent/) | 自主编程智能体 VS Code 扩展 | .NET 10, TypeScript, Python, LightRAG | ✅ Active |
-| [Glimmer](./Glimmer/) | 桌面与移动端 AI 自动化 Agent | Vue 3, Python, 智谱 GLM-4V | ✅ Active |
-| [CartService](./CartService/) | 电商购物车微服务 | FastAPI, PostgreSQL, SQLAlchemy | ✅ Active |
-| [NovelTTSApp](./NovelTTSApp/) | 小说转有声书 AI 应用 | .NET 10, 智谱 GLM-TTS, NAudio | ✅ Active |
-| [EpubToSplitTxt](./EpubToSplitTxt/) | Epub 电子书章节切分工具 | .NET 9, VersOne.Epub | ✅ Active |
-| [MindMates](./MindMates/) | 心理健康 AI 伴侣平台 | Vue 3, .NET 10, FastAPI, MiMo | ✅ Active |
-| [BatchClip](./BatchClip/) | 自动化视频批量剪辑工具 | FastAPI, Streamlit, FFmpeg | ✅ Active |
+| Project | Description | Tech Stack | Status |
+|---------|-------------|------------|--------|
+| [ALAgent](./ALAgent/) | Autonomous Coding Agent VS Code Extension | .NET 10, TypeScript, Python, LightRAG | ✅ Active |
+| [Glimmer](./Glimmer/) | Desktop & Mobile AI Automation Agent | Vue 3, Python, Zhipu GLM-4V | ✅ Active |
+| [CartService](./CartService/) | E-commerce Shopping Cart Microservice | FastAPI, PostgreSQL, SQLAlchemy | ✅ Active |
+| [NovelTTSApp](./NovelTTSApp/) | Novel to Audiobook AI Application | .NET 10, Zhipu GLM-TTS, NAudio | ✅ Active |
+| [EpubToSplitTxt](./EpubToSplitTxt/) | Epub eBook Chapter Splitting Tool | .NET 9, VersOne.Epub | ✅ Active |
+| [MindMates](./MindMates/) | Mental Health AI Companion Platform | Vue 3, .NET 10, FastAPI, MiMo | ✅ Active |
+| [BatchClip](./BatchClip/) | Automated Batch Video Editing Tool | FastAPI, Streamlit, FFmpeg | ✅ Active |
 
 ---
 
-## 🏗️ 目录结构
+## 🏗️ Directory Structure
 
 ```
 HelloQoder/
-├── ALAgent/                 # 🤖 自主编程智能体
-│   ├── frontend-extension/  # VS Code 扩展
-│   ├── backend-agent/       # .NET 推理引擎
-│   ├── backend-rag/         # Python RAG 服务
-│   └── README.md            # 项目文档
+├── ALAgent/                 # 🤖 Autonomous Coding Agent
+│   ├── frontend-extension/  # VS Code Extension
+│   ├── backend-agent/       # .NET Reasoning Engine
+│   ├── backend-rag/         # Python RAG Service
+│   └── README.md            # Project Documentation
 │
-├── Glimmer/                 # 🖥️ 桌面 AI 自动化
-│   ├── Glimmer-UI/          # Vue 3 前端
-│   ├── Glimmer-Web/         # Python 后端
-│   ├── Open-AutoGLM/        # 开源自动化库
-│   └── README.md            # 项目文档
+├── Glimmer/                 # 🖥️ Desktop AI Automation
+│   ├── Glimmer-UI/          # Vue 3 Frontend
+│   ├── Glimmer-Web/         # Python Backend
+│   ├── Open-AutoGLM/        # Open Source Automation Library
+│   └── README.md            # Project Documentation
 │
-├── CartService/             # 🛒 购物车微服务
-│   ├── app/                 # 应用代码
-│   ├── alembic/             # 数据库迁移
-│   └── README.md            # 项目文档
+├── CartService/             # 🛒 Shopping Cart Microservice
+│   ├── app/                 # Application Code
+│   ├── alembic/             # Database Migrations
+│   └── README.md            # Project Documentation
 │
-├── NovelTTSApp/             # 🎙️ 小说转语音应用
+├── NovelTTSApp/             # 🎙️ Novel to Speech Application
 │   ├── src/
-│   │   ├── Core/            # 核心层 - 领域实体与接口
-│   │   ├── Infrastructure/  # 基础设施层 - 具体实现
-│   │   └── App/             # 应用层 - 主程序
-│   └── README.md            # 项目文档
+│   │   ├── Core/            # Core Layer - Domain Entities & Interfaces
+│   │   ├── Infrastructure/  # Infrastructure Layer - Implementations
+│   │   └── App/             # Application Layer - Main Program
+│   └── README.md            # Project Documentation
 │
-├── EpubToSplitTxt/          # 📖 Epub 切分工具
-│   ├── EpubConverter.cs     # Epub 解析器
-│   ├── TextSplitter.cs      # 章节切分器
-│   └── README.md            # 项目文档
+├── EpubToSplitTxt/          # 📖 Epub Splitting Tool
+│   ├── EpubConverter.cs     # Epub Parser
+│   ├── TextSplitter.cs      # Chapter Splitter
+│   └── README.md            # Project Documentation
 │
-├── MindMates/               # 🧠 心理健康 AI 平台
-│   ├── frontend/            # Vue 3 前端
-│   ├── backend-business/    # .NET 10 业务后端
-│   ├── backend-ai/          # Python AI 后端
-│   └── README.md            # 项目文档
+├── MindMates/               # 🧠 Mental Health AI Platform
+│   ├── frontend/            # Vue 3 Frontend
+│   ├── backend-business/    # .NET 10 Business Backend
+│   ├── backend-ai/          # Python AI Backend
+│   └── README.md            # Project Documentation
 │
-├── BatchClip/               # 🎬 视频批量剪辑工具
-│   ├── backend/             # FastAPI 后端
-│   ├── frontend/            # Streamlit 前端
-│   └── start.bat            # 启动脚本
+├── BatchClip/               # 🎬 Batch Video Editing Tool
+│   ├── backend/             # FastAPI Backend
+│   ├── frontend/            # Streamlit Frontend
+│   └── start.bat            # Startup Script
 │
-└── README.md                # 本文件
+└── README.md                # This File
 ```
 
 ---
 
-## ✨ 快速导航
+## ✨ Quick Navigation
 
 ### 🤖 ALAgent
 
-自主编程智能体 VS Code 扩展，基于 Microsoft Agent Framework + LangChain + LightRAG 架构。
+Autonomous Coding Agent VS Code Extension, built on Microsoft Agent Framework + LangChain + LightRAG architecture.
 
-- **技术栈**: TypeScript 5.0+ / .NET 10 / Python 3.11+ / LangChain / LightRAG
-- **功能**: 智能对话、代码检索、文件操作、代码分析、知识图谱增强检索
-- **架构**: VS Code 扩展 + .NET Agent + Python RAG 服务
-- **文档**: [查看详情](./ALAgent/README.md)
+- **Tech Stack**: TypeScript 5.0+ / .NET 10 / Python 3.11+ / LangChain / LightRAG
+- **Features**: Intelligent Chat, Code Retrieval, File Operations, Code Analysis, Knowledge Graph Enhanced Retrieval
+- **Architecture**: VS Code Extension + .NET Agent + Python RAG Service
+- **Documentation**: [View Details](./ALAgent/README.md)
 
 ---
 
 ### 🖥️ Glimmer
 
-桌面与移动端 AI 自动化 Agent，基于智谱 Open-AutoGLM，支持全平台自动化操作。
+Desktop and Mobile AI Automation Agent, based on Zhipu Open-AutoGLM, supporting cross-platform automation.
 
-- **技术栈**: Vue 3 / Python 3.10+ / PyAutoGUI / 智谱 GLM-4V
-- **功能**: 桌面自动化、移动端支持 (Android/iOS/HarmonyOS)、AI 视觉理解
-- **架构**: Vue 前端 + Python Agent 服务
-- **文档**: [查看详情](./Glimmer/README.md)
+- **Tech Stack**: Vue 3 / Python 3.10+ / PyAutoGUI / Zhipu GLM-4V
+- **Features**: Desktop Automation, Mobile Support (Android/iOS/HarmonyOS), AI Visual Understanding
+- **Architecture**: Vue Frontend + Python Agent Service
+- **Documentation**: [View Details](./Glimmer/README.md)
 
 ---
 
 ### 🛒 CartService
 
-高性能电商购物车微服务，支持购物车 CRUD、商品管理、购物车合并等功能。
+High-performance e-commerce shopping cart microservice, supporting cart CRUD, item management, cart merging, etc.
 
-- **技术栈**: Python 3.10+ / FastAPI / PostgreSQL / SQLAlchemy 2.0
-- **功能**: 购物车管理、商品增删改查、购物车合并
-- **文档**: [查看详情](./CartService/README.md)
+- **Tech Stack**: Python 3.10+ / FastAPI / PostgreSQL / SQLAlchemy 2.0
+- **Features**: Cart Management, Item CRUD, Cart Merging
+- **Documentation**: [View Details](./CartService/README.md)
 
 ---
 
 ### 🎙️ NovelTTSApp
 
-将小说文本转换为有声书的 AI 应用程序，使用智谱 GLM-TTS 实现高质量语音合成。
+AI application for converting novel text to audiobooks, using Zhipu GLM-TTS for high-quality speech synthesis.
 
-- **技术栈**: .NET 10 / C# 13 / 智谱 GLM-TTS / NAudio
-- **功能**: 小说文本读取、智能分段、AI 语音合成、声音克隆
-- **架构**: Clean Architecture（清洁架构）
-- **文档**: [查看详情](./NovelTTSApp/README.md)
+- **Tech Stack**: .NET 10 / C# 13 / Zhipu GLM-TTS / NAudio
+- **Features**: Novel Text Reading, Smart Segmentation, AI Speech Synthesis, Voice Cloning
+- **Architecture**: Clean Architecture
+- **Documentation**: [View Details](./NovelTTSApp/README.md)
 
 ---
 
 ### 📖 EpubToSplitTxt
 
-Epub 电子书预处理系统，将 `.epub` 格式电子书转换为纯文本并按章节智能切分。
+Epub eBook preprocessing system, converting `.epub` format eBooks to plain text with intelligent chapter splitting.
 
-- **技术栈**: .NET 9 / VersOne.Epub / HtmlAgilityPack
-- **功能**: Epub 解析、章节识别、智能切分、UTF-8 输出
-- **文档**: [查看详情](./EpubToSplitTxt/README.md)
+- **Tech Stack**: .NET 9 / VersOne.Epub / HtmlAgilityPack
+- **Features**: Epub Parsing, Chapter Recognition, Smart Splitting, UTF-8 Output
+- **Documentation**: [View Details](./EpubToSplitTxt/README.md)
 
 ---
 
 ### 🧠 MindMates
 
-心理健康 AI 伴侣平台，提供 7x24 小时智能心理咨询服务。
+Mental Health AI Companion Platform, providing 24/7 intelligent psychological counseling services.
 
-- **技术栈**: Vue 3 + TypeScript / .NET 10 / Python FastAPI / MiMo
-- **功能**: AI 对话、危机检测、RAG 增强、移动端支持
-- **架构**: 前后端分离 + AI 微服务
-- **文档**: [查看详情](./MindMates/README.md)
+- **Tech Stack**: Vue 3 + TypeScript / .NET 10 / Python FastAPI / MiMo
+- **Features**: AI Chat, Crisis Detection, RAG Enhancement, Mobile Support
+- **Architecture**: Frontend-Backend Separation + AI Microservice
+- **Documentation**: [View Details](./MindMates/README.md)
 
 ---
 
 ### 🎬 BatchClip
 
-自动化视频批量剪辑工具，AI 分析素材并自动生成粗剪视频。
+Automated batch video editing tool, AI analyzes materials and automatically generates rough cut videos.
 
-- **技术栈**: Python / FastAPI / Streamlit / FFmpeg
-- **功能**: 视频上传、AI 素材分析、自动粗剪、批量处理
-- **架构**: 前后端分离
-- **文档**: [查看详情](./BatchClip/README.md)
-
----
-
-## 🔧 技术栈总览
-
-| 领域 | 技术 |
-|------|------|
-| **后端服务** | Python, FastAPI, .NET 10 |
-| **前端** | Vue 3, TypeScript, Vite |
-| **AI 集成** | 智谱 GLM-TTS, 智谱 GLM-4V, 小米 MiMo, LangChain, LightRAG |
-| **数据库** | PostgreSQL, Milvus |
-| **视频处理** | FFmpeg |
-| **部署** | Docker Compose |
+- **Tech Stack**: Python / FastAPI / Streamlit / FFmpeg
+- **Features**: Video Upload, AI Material Analysis, Auto Rough Cut, Batch Processing
+- **Architecture**: Frontend-Backend Separation
+- **Documentation**: [View Details](./BatchClip/README.md)
 
 ---
 
-## 📋 添加新项目
+## 🔧 Tech Stack Overview
 
-1. 在根目录下创建新项目文件夹
-2. 添加项目代码和独立的 `README.md`
-3. 可选：添加 `Agent.md` 和 `Agent&Chat.md`
-4. 更新本文件的项目列表
+| Domain | Technologies |
+|--------|--------------|
+| **Backend Services** | Python, FastAPI, .NET 10 |
+| **Frontend** | Vue 3, TypeScript, Vite |
+| **AI Integration** | Zhipu GLM-TTS, Zhipu GLM-4V, Xiaomi MiMo, LangChain, LightRAG |
+| **Database** | PostgreSQL, Milvus |
+| **Video Processing** | FFmpeg |
+| **Deployment** | Docker Compose |
+
+---
+
+## 📋 Adding New Projects
+
+1. Create a new project folder in the root directory
+2. Add project code and standalone `README.md`
+3. Optional: Add `Agent.md` and `Agent&Chat.md`
+4. Update the project list in this file
 
 ---
 

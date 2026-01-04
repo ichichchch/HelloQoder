@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![Projects](https://img.shields.io/badge/Projects-5-blue?style=flat-square)
+![Projects](https://img.shields.io/badge/Projects-7-blue?style=flat-square)
 ![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=flat-square&logo=python&logoColor=white)
 ![.NET](https://img.shields.io/badge/.NET-9.0%20|%2010.0-512BD4?style=flat-square&logo=dotnet)
 ![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
@@ -19,6 +19,8 @@
 
 | 项目 | 描述 | 技术栈 | 状态 |
 |------|------|--------|------|
+| [ALAgent](./ALAgent/) | 自主编程智能体 VS Code 扩展 | .NET 10, TypeScript, Python, LightRAG | ✅ Active |
+| [Glimmer](./Glimmer/) | 桌面与移动端 AI 自动化 Agent | Vue 3, Python, 智谱 GLM-4V | ✅ Active |
 | [CartService](./CartService/) | 电商购物车微服务 | FastAPI, PostgreSQL, SQLAlchemy | ✅ Active |
 | [NovelTTSApp](./NovelTTSApp/) | 小说转有声书 AI 应用 | .NET 10, 智谱 GLM-TTS, NAudio | ✅ Active |
 | [EpubToSplitTxt](./EpubToSplitTxt/) | Epub 电子书章节切分工具 | .NET 9, VersOne.Epub | ✅ Active |
@@ -31,6 +33,18 @@
 
 ```
 HelloQoder/
+├── ALAgent/                 # 🤖 自主编程智能体
+│   ├── frontend-extension/  # VS Code 扩展
+│   ├── backend-agent/       # .NET 推理引擎
+│   ├── backend-rag/         # Python RAG 服务
+│   └── README.md            # 项目文档
+│
+├── Glimmer/                 # 🖥️ 桌面 AI 自动化
+│   ├── Glimmer-UI/          # Vue 3 前端
+│   ├── Glimmer-Web/         # Python 后端
+│   ├── Open-AutoGLM/        # 开源自动化库
+│   └── README.md            # 项目文档
+│
 ├── CartService/             # 🛒 购物车微服务
 │   ├── app/                 # 应用代码
 │   ├── alembic/             # 数据库迁移
@@ -65,6 +79,28 @@ HelloQoder/
 ---
 
 ## ✨ 快速导航
+
+### 🤖 ALAgent
+
+自主编程智能体 VS Code 扩展，基于 Microsoft Agent Framework + LangChain + LightRAG 架构。
+
+- **技术栈**: TypeScript 5.0+ / .NET 10 / Python 3.11+ / LangChain / LightRAG
+- **功能**: 智能对话、代码检索、文件操作、代码分析、知识图谱增强检索
+- **架构**: VS Code 扩展 + .NET Agent + Python RAG 服务
+- **文档**: [查看详情](./ALAgent/README.md)
+
+---
+
+### 🖥️ Glimmer
+
+桌面与移动端 AI 自动化 Agent，基于智谱 Open-AutoGLM，支持全平台自动化操作。
+
+- **技术栈**: Vue 3 / Python 3.10+ / PyAutoGUI / 智谱 GLM-4V
+- **功能**: 桌面自动化、移动端支持 (Android/iOS/HarmonyOS)、AI 视觉理解
+- **架构**: Vue 前端 + Python Agent 服务
+- **文档**: [查看详情](./Glimmer/README.md)
+
+---
 
 ### 🛒 CartService
 
@@ -125,7 +161,7 @@ Epub 电子书预处理系统，将 `.epub` 格式电子书转换为纯文本并
 |------|------|
 | **后端服务** | Python, FastAPI, .NET 10 |
 | **前端** | Vue 3, TypeScript, Vite |
-| **AI 集成** | 智谱 GLM-TTS, 小米 MiMo, LangChain |
+| **AI 集成** | 智谱 GLM-TTS, 智谱 GLM-4V, 小米 MiMo, LangChain, LightRAG |
 | **数据库** | PostgreSQL, Milvus |
 | **视频处理** | FFmpeg |
 | **部署** | Docker Compose |

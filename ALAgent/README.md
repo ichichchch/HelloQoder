@@ -12,7 +12,7 @@
 
 *基于 [Microsoft Agent Framework](https://learn.microsoft.com/en-us/agent-framework/) + LangChain + LightRAG 架构，支持多模态 RAG 代码检索与智能编程辅助*
 
-- **开发过程记录**: [Agent&Chat.md](./Agent&Chat.md)
+- **开发过程记录**: [Agent&Chat.md](./docs/Agent&Chat.md)
 
 </div>
 

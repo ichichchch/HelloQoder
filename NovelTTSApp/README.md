@@ -6,41 +6,43 @@
 ![C#](https://img.shields.io/badge/C%23-13.0-239120?style=flat-square&logo=csharp)
 ![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)
 
-**将小说文本转换为有声书的 AI 应用程序**
+**AI Application for Converting Novel Text to Audiobooks**
 
-*使用智谱 GLM-TTS 实现高质量语音合成，支持 Bilibili 音频声音克隆*
+*High-quality speech synthesis using Zhipu GLM-TTS with Bilibili audio voice cloning support*
 
-- **开发过程记录**: [Agent&Chat.md](./docs/Agent&Chat.md)
+English | [中文](./README_zh.md) | [Русский](./README_ru.md) | [한국어](./README_ko.md) | [日本語](./README_ja.md)
+
+- **Development Log**: [Agent&Chat.md](./docs/Agent&Chat.md)
 
 </div>
 
 ---
 
-## ✨ 功能特性
+## ✨ Features
 
-- 📖 **小说文本读取** - 支持 `.txt`、`.md` 文件，支持从 URL 抓取内容
-- 🎯 **智能文本分段** - 自动将长文本分割为适合 TTS 的片段
-- 🎙️ **AI 语音合成** - 基于智谱 GLM-TTS 的高质量语音生成
-- 🎭 **声音克隆** - 从 Bilibili 视频提取参考音频，通过 GLM-TTS-Clone 实现音色克隆
-- 🎵 **音频处理** - 使用 NAudio 进行音频合并、格式转换
-- 🔄 **智能重试** - 使用 Polly 处理 API 调用失败的重试机制
-- 📊 **进度追踪** - 实时显示处理进度
+- 📖 **Novel Text Reading** - Supports `.txt`, `.md` files, and URL content extraction
+- 🎯 **Intelligent Text Segmentation** - Automatically split long text into TTS-suitable segments
+- 🎙️ **AI Speech Synthesis** - High-quality voice generation based on Zhipu GLM-TTS
+- 🎭 **Voice Cloning** - Extract reference audio from Bilibili videos for voice cloning via GLM-TTS-Clone
+- 🎵 **Audio Processing** - Audio merging and format conversion using NAudio
+- 🔄 **Smart Retry** - Retry mechanism for API call failures using Polly
+- 📊 **Progress Tracking** - Real-time processing progress display
 
 ---
 
-## 🏗️ 架构设计
+## 🏗️ Architecture
 
-项目采用 **Clean Architecture（清洁架构）** 设计模式：
+The project adopts **Clean Architecture** design pattern:
 
 ```
 NovelTTSApp/
 ├── src/
-│   ├── Core/                    # 核心层 - 领域实体与接口
-│   │   ├── Entities/            # 领域实体
-│   │   │   ├── Novel.cs         # 小说实体
-│   │   │   ├── AudioSegment.cs  # 音频片段实体
-│   │   │   └── VoiceReference.cs# 声音参考实体
-│   │   └── Interfaces/          # 核心接口
+│   ├── Core/                    # Core Layer - Domain Entities & Interfaces
+│   │   ├── Entities/            # Domain Entities
+│   │   │   ├── Novel.cs         # Novel Entity
+│   │   │   ├── AudioSegment.cs  # Audio Segment Entity
+│   │   │   └── VoiceReference.cs# Voice Reference Entity
+│   │   └── Interfaces/          # Core Interfaces
 │   │       ├── INovelReader.cs
 │   │       ├── ITextSegmenter.cs
 │   │       ├── ITtsService.cs
@@ -48,9 +50,9 @@ NovelTTSApp/
 │   │       ├── IBilibiliDownloader.cs
 │   │       └── INovelProcessor.cs
 │   │
-│   ├── Infrastructure/          # 基础设施层 - 具体实现
-│   │   ├── Configuration/       # 配置类
-│   │   ├── Services/            # 服务实现
+│   ├── Infrastructure/          # Infrastructure Layer - Implementations
+│   │   ├── Configuration/       # Configuration Classes
+│   │   ├── Services/            # Service Implementations
 │   │   │   ├── NovelReader.cs
 │   │   │   ├── TextSegmenter.cs
 │   │   │   ├── ZhipuTtsService.cs
@@ -58,7 +60,7 @@ NovelTTSApp/
 │   │   │   └── BilibiliDownloader.cs
 │   │   └── DependencyInjection.cs
 │   │
-│   └── App/                     # 应用层 - 主程序
+│   └── App/                     # Application Layer - Main Program
 │       ├── Services/
 │       │   └── NovelProcessor.cs
 │       ├── Program.cs
@@ -69,24 +71,24 @@ NovelTTSApp/
 
 ---
 
-## 🚀 快速开始
+## 🚀 Quick Start
 
-### 环境要求
+### Prerequisites
 
-- [.NET 10.0 SDK](https://dotnet.microsoft.com/download) 或更高版本
-- 智谱 AI API Key ([获取地址](https://open.bigmodel.cn/))
+- [.NET 10.0 SDK](https://dotnet.microsoft.com/download) or higher
+- Zhipu AI API Key ([Get here](https://open.bigmodel.cn/))
 
-### 安装与配置
+### Installation & Configuration
 
-1. **克隆项目**
+1. **Clone Project**
 ```bash
 git clone https://github.com/your-repo/NovelTTSApp.git
 cd NovelTTSApp
 ```
 
-2. **配置 API Key**
+2. **Configure API Key**
 
-编辑 `src/App/appsettings.json`：
+Edit `src/App/appsettings.json`:
 ```json
 {
   "AI": {
@@ -103,119 +105,119 @@ cd NovelTTSApp
 }
 ```
 
-3. **构建项目**
+3. **Build Project**
 ```bash
 dotnet build -c Release
 ```
 
-4. **运行程序**
+4. **Run Program**
 ```bash
 dotnet run --project src/App
 ```
 
 ---
 
-## 📖 使用方法
+## 📖 Usage
 
-### 命令行参数
+### Command Line Arguments
 
 ```bash
 NovelTTSApp [options]
 
-选项:
-    -i, --input <path>     输入小说文件路径 (.txt 或 .md)
-    -o, --output <path>    输出音频文件路径 (.mp3)
-    -c, --chapter <name>   章节过滤关键词
-    -v, --voice <url>      用于声音克隆的 Bilibili 视频 URL (可选)
-    -h, --help             显示帮助信息
+Options:
+    -i, --input <path>     Input novel file path (.txt or .md)
+    -o, --output <path>    Output audio file path (.mp3)
+    -c, --chapter <name>   Chapter filter keyword
+    -v, --voice <url>      Bilibili video URL for voice cloning (optional)
+    -h, --help             Show help information
 ```
 
-### 使用示例
+### Usage Examples
 
 ```bash
-# 处理默认输入文件夹中的所有小说
+# Process all novels in default input folder
 dotnet run --project src/App
 
-# 处理特定章节
-dotnet run --project src/App -- -c "第一章"
+# Process specific chapter
+dotnet run --project src/App -- -c "Chapter 1"
 
-# 使用 Bilibili 视频进行声音克隆
-dotnet run --project src/App -- -c "第一章" -v https://www.bilibili.com/video/BV1xxxxxxxx
+# Use Bilibili video for voice cloning
+dotnet run --project src/App -- -c "Chapter 1" -v https://www.bilibili.com/video/BV1xxxxxxxx
 
-# 处理单个小说文件
+# Process single novel file
 dotnet run --project src/App -- -i ./mynovel.txt -o ./mynovel.mp3
 ```
 
 ---
 
-## 🎭 声音克隆
+## 🎭 Voice Cloning
 
-声音克隆功能通过智谱 GLM-TTS-Clone API 实现，完整流程：
+Voice cloning is implemented via Zhipu GLM-TTS-Clone API, complete workflow:
 
 ```
-1. 从 Bilibili 视频下载并提取参考音频（10秒片段）
-2. 上传音频至智谱 API 获取 file_id（purpose: voice-clone-input）
-3. 调用 voice/clone 创建音色 → 获得 voice_id
-4. 使用 voice_id 调用 GLM-TTS 生成克隆语音
+1. Download and extract reference audio from Bilibili video (10-second clip)
+2. Upload audio to Zhipu API to get file_id (purpose: voice-clone-input)
+3. Call voice/clone to create voice → obtain voice_id
+4. Use voice_id to call GLM-TTS to generate cloned voice
 ```
 
-> 📚 参考文档：[GLM-TTS-Clone](https://docs.bigmodel.cn/cn/guide/models/sound-and-video/glm-tts-clone)
+> 📚 Reference: [GLM-TTS-Clone](https://docs.bigmodel.cn/cn/guide/models/sound-and-video/glm-tts-clone)
 
 ---
 
-## 📁 数据目录结构
+## 📁 Data Directory Structure
 
 ```
 data/
-├── novels/              # 小说文本源文件
-│   └── 蛊真人/
-│       └── 01.第一章：前言/
-│           ├── 001.前言.txt
-│           └── 002.内容简介....txt
-├── output/              # 生成的有声书文件
-├── reference_audio/     # B站提取的参考音频素材
-└── temp/                # 临时音频片段文件
+├── novels/              # Novel text source files
+│   └── BookName/
+│       └── 01.Chapter1/
+│           ├── 001.Prologue.txt
+│           └── 002.Introduction.txt
+├── output/              # Generated audiobook files
+├── reference_audio/     # Reference audio from Bilibili
+└── temp/                # Temporary audio segment files
 ```
 
 ---
 
-## 🔧 核心依赖
+## 🔧 Core Dependencies
 
-| 库 | 版本 | 用途 |
-|----|------|------|
-| Microsoft.Extensions.AI | 最新 | .NET AI 统一抽象层 |
-| NAudio | 2.2.1 | 音频处理（格式转换、合并） |
-| HtmlAgilityPack | 1.11.59 | HTML 解析（网页小说抓取） |
-| Serilog | 4.2.0 | 结构化日志 |
-| Polly | 8.0.0 | 弹性处理（重试机制） |
+| Library | Version | Purpose |
+|---------|---------|---------|
+| Microsoft.Extensions.AI | Latest | .NET AI Unified Abstraction Layer |
+| NAudio | 2.2.1 | Audio Processing (format conversion, merging) |
+| HtmlAgilityPack | 1.11.59 | HTML Parsing (web novel extraction) |
+| Serilog | 4.2.0 | Structured Logging |
+| Polly | 8.0.0 | Resilience (retry mechanism) |
 
 ---
 
-## 📊 业务流程
+## 📊 Business Flow
 
 ```
 ┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│   素材获取      │────▶│   文本处理      │────▶│   AI 生成       │
+│   Asset Prep    │────▶│  Text Process   │────▶│   AI Generate   │
 │                 │     │                 │     │                 │
-│ • 读取小说文件  │     │ • 文本清洗      │     │ • 调用智谱 API  │
-│ • B站音频提取   │     │ • 智能分段      │     │ • 流式处理      │
-│ • 声音克隆准备  │     │ • 音色克隆      │     │ • 语音生成      │
+│ • Read novel    │     │ • Text cleaning │     │ • Call Zhipu API│
+│ • B站 audio     │     │ • Smart segment │     │ • Stream process│
+│ • Voice clone   │     │ • Voice clone   │     │ • Voice generate│
 └─────────────────┘     └─────────────────┘     └────────┬────────┘
                                                          │
                                                          ▼
                                                ┌─────────────────┐
-                                               │   后期合成      │
+                                               │   Post Process  │
                                                │                 │
-                                               │ • 音频片段合并  │
-                                               │ • 格式转换导出  │
+                                               │ • Merge segments│
+                                               │ • Format convert│
                                                └─────────────────┘
 ```
 
 ---
 
-## 📄 许可证
+## 📄 License
 
-本项目采用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情。
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 

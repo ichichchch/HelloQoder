@@ -8,84 +8,86 @@
 ![FFmpeg](https://img.shields.io/badge/FFmpeg-Required-007808?style=flat-square&logo=ffmpeg&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)
 
-**自动化视频批量剪辑工具**
+**Automated Batch Video Editing Tool**
 
-*基于 FastAPI + FFmpeg + Streamlit 架构，支持视频上传、预处理、粗剪全流程*
+*Based on FastAPI + FFmpeg + Streamlit architecture, supporting video upload, preprocessing, and rough cut workflow*
 
-- **开发过程记录**: [Agent&Chat.md](./docs/Agent&Chat.md)
+English | [中文](./README_zh.md) | [Русский](./README_ru.md) | [한국어](./README_ko.md) | [日本語](./README_ja.md)
+
+- **Development Log**: [Agent&Chat.md](./docs/Agent&Chat.md)
 
 </div>
 
 ---
 
-## ✨ 功能特性
+## ✨ Features
 
-- 📤 **批量上传** - 支持 MP4/MOV/AVI/MKV/WebM 等主流格式
-- 🎞️ **代理生成** - 自动生成低分辨率代理文件，加速预览
-- ✂️ **视频分割** - 按时长自动切分长视频
-- 🎬 **片段提取** - 精确提取指定时间段片段
-- 📋 **粗剪合成** - 多片段拼接生成粗剪视频
-- 🤖 **自动粗剪** - 智能保留片头片尾，快速生成预览
-- 📁 **资产管理** - 统一管理视频素材及元数据
-- 📊 **处理日志** - 完整记录处理过程
-
----
-
-## 🛠️ 技术栈
-
-| 技术 | 版本 | 用途 |
-|------|------|------|
-| Python | 3.10+ | 运行环境 |
-| FastAPI | 0.109+ | 高性能异步后端 API |
-| Streamlit | 1.40+ | 前端 UI 界面 |
-| FFmpeg | - | 视频处理引擎 |
-| Pydantic | v2 | 数据验证与配置管理 |
-| aiofiles | 23.2+ | 异步文件操作 |
+- 📤 **Batch Upload** - Supports MP4/MOV/AVI/MKV/WebM and other major formats
+- 🎞️ **Proxy Generation** - Auto-generate low-resolution proxy files for faster preview
+- ✂️ **Video Splitting** - Auto-split long videos by duration
+- 🎬 **Clip Extraction** - Extract specific time range segments precisely
+- 📋 **Rough Cut Composition** - Merge multiple clips into rough cut video
+- 🤖 **Auto Rough Cut** - Intelligently preserve intro/outro for quick preview
+- 📁 **Asset Management** - Unified management of video assets and metadata
+- 📊 **Processing Logs** - Complete recording of processing history
 
 ---
 
-## 🏗️ 项目结构
+## 🛠️ Tech Stack
+
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| Python | 3.10+ | Runtime Environment |
+| FastAPI | 0.109+ | High-performance Async Backend API |
+| Streamlit | 1.40+ | Frontend UI |
+| FFmpeg | - | Video Processing Engine |
+| Pydantic | v2 | Data Validation & Configuration |
+| aiofiles | 23.2+ | Async File Operations |
+
+---
+
+## 🏗️ Project Structure
 
 ```
 BatchClip/
 ├── backend/
-│   ├── api/                    # API 路由层
-│   │   ├── upload.py           # 视频上传接口
-│   │   ├── assets.py           # 资产管理接口
-│   │   ├── processing.py       # 预处理接口
-│   │   └── editor.py           # 剪辑接口
-│   ├── modules/                # 业务模块
-│   │   ├── dam.py              # 数字资产管理
-│   │   ├── upload_handler.py   # 上传处理器
-│   │   ├── preprocessor.py     # 视频预处理器
-│   │   └── editor.py           # 视频编辑器
-│   ├── config.py               # 配置管理
-│   ├── main.py                 # 应用入口
-│   └── requirements.txt        # 后端依赖
+│   ├── api/                    # API Routes
+│   │   ├── upload.py           # Video Upload API
+│   │   ├── assets.py           # Asset Management API
+│   │   ├── processing.py       # Preprocessing API
+│   │   └── editor.py           # Editing API
+│   ├── modules/                # Business Modules
+│   │   ├── dam.py              # Digital Asset Management
+│   │   ├── upload_handler.py   # Upload Handler
+│   │   ├── preprocessor.py     # Video Preprocessor
+│   │   └── editor.py           # Video Editor
+│   ├── config.py               # Configuration Management
+│   ├── main.py                 # Application Entry
+│   └── requirements.txt        # Backend Dependencies
 ├── frontend/
 │   ├── app.py                  # Streamlit UI
-│   └── requirements.txt        # 前端依赖
-├── start.bat                   # Windows 启动脚本
-├── start.sh                    # Linux/Mac 启动脚本
+│   └── requirements.txt        # Frontend Dependencies
+├── start.bat                   # Windows Startup Script
+├── start.sh                    # Linux/Mac Startup Script
 └── .gitignore
 ```
 
 ---
 
-## 🚀 快速开始
+## 🚀 Quick Start
 
-### 1. 前置要求
+### 1. Prerequisites
 
 - Python 3.10+
-- FFmpeg（必须安装并添加到 PATH）
+- FFmpeg (must be installed and added to PATH)
 
-**安装 FFmpeg:**
+**Install FFmpeg:**
 
 ```bash
-# Windows (使用 winget)
+# Windows (using winget)
 winget install FFmpeg
 
-# Windows (使用 choco)
+# Windows (using choco)
 choco install ffmpeg
 
 # macOS
@@ -95,7 +97,7 @@ brew install ffmpeg
 sudo apt install ffmpeg
 ```
 
-### 2. 一键启动
+### 2. One-Click Start
 
 **Windows:**
 ```bash
@@ -108,132 +110,132 @@ chmod +x start.sh
 ./start.sh
 ```
 
-### 3. 手动启动
+### 3. Manual Start
 
-**启动后端:**
+**Start Backend:**
 ```bash
 cd backend
 pip install -r requirements.txt
 uvicorn main:app --reload --port 8000
 ```
 
-**启动前端:**
+**Start Frontend:**
 ```bash
 cd frontend
 pip install -r requirements.txt
 streamlit run app.py --server.port 8501
 ```
 
-### 4. 访问地址
+### 4. Access URLs
 
-- **前端 UI**: http://localhost:8501
-- **后端 API**: http://localhost:8000
-- **Swagger 文档**: http://localhost:8000/docs
-- **健康检查**: http://localhost:8000/health
-
----
-
-## 📡 API 接口
-
-### Upload 上传模块
-
-| 方法 | 路径 | 说明 |
-|------|------|------|
-| POST | `/api/upload/single` | 上传单个视频 |
-| GET | `/api/upload/list` | 获取上传列表 |
-
-### Assets 资产模块
-
-| 方法 | 路径 | 说明 |
-|------|------|------|
-| GET | `/api/assets/` | 获取资产列表 |
-| GET | `/api/assets/{asset_id}` | 获取资产详情 |
-| GET | `/api/assets/{asset_id}/logs` | 获取处理日志 |
-| DELETE | `/api/assets/{asset_id}` | 删除资产 |
-
-### Processing 处理模块
-
-| 方法 | 路径 | 说明 |
-|------|------|------|
-| POST | `/api/processing/{asset_id}/preprocess` | 完整预处理 |
-| POST | `/api/processing/{asset_id}/metadata` | 提取元数据 |
-| POST | `/api/processing/{asset_id}/proxy` | 生成代理文件 |
-| POST | `/api/processing/{asset_id}/split` | 分割视频 |
-
-### Editor 编辑模块
-
-| 方法 | 路径 | 说明 |
-|------|------|------|
-| POST | `/api/editor/{asset_id}/clip` | 提取片段 |
-| POST | `/api/editor/{asset_id}/rough-cut` | 粗剪合成 |
-| POST | `/api/editor/{asset_id}/auto-rough-cut` | 自动粗剪 |
+- **Frontend UI**: http://localhost:8501
+- **Backend API**: http://localhost:8000
+- **Swagger Docs**: http://localhost:8000/docs
+- **Health Check**: http://localhost:8000/health
 
 ---
 
-## ⚙️ 配置说明
+## 📡 API Endpoints
 
-### 环境变量 (`backend/.env`)
+### Upload Module
+
+| Method | Path | Description |
+|--------|------|-------------|
+| POST | `/api/upload/single` | Upload single video |
+| GET | `/api/upload/list` | Get upload list |
+
+### Assets Module
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/api/assets/` | Get asset list |
+| GET | `/api/assets/{asset_id}` | Get asset details |
+| GET | `/api/assets/{asset_id}/logs` | Get processing logs |
+| DELETE | `/api/assets/{asset_id}` | Delete asset |
+
+### Processing Module
+
+| Method | Path | Description |
+|--------|------|-------------|
+| POST | `/api/processing/{asset_id}/preprocess` | Full preprocessing |
+| POST | `/api/processing/{asset_id}/metadata` | Extract metadata |
+| POST | `/api/processing/{asset_id}/proxy` | Generate proxy file |
+| POST | `/api/processing/{asset_id}/split` | Split video |
+
+### Editor Module
+
+| Method | Path | Description |
+|--------|------|-------------|
+| POST | `/api/editor/{asset_id}/clip` | Extract clip |
+| POST | `/api/editor/{asset_id}/rough-cut` | Rough cut composition |
+| POST | `/api/editor/{asset_id}/auto-rough-cut` | Auto rough cut |
+
+---
+
+## ⚙️ Configuration
+
+### Environment Variables (`backend/.env`)
 
 ```env
-# 存储路径
+# Storage Paths
 PROCESSING_TEMP_DIR=./temp
 FINAL_OUTPUT_DIR=./output
 UPLOAD_DIR=./uploads
 ASSETS_DIR=./assets
 
-# 存储类型 (local/oss)
+# Storage Type (local/oss)
 STORAGE_TYPE=local
 
-# FFmpeg 路径 (如果不在 PATH 中)
+# FFmpeg Path (if not in PATH)
 FFMPEG_PATH=ffmpeg
 
-# 服务配置
+# Service Configuration
 HOST=0.0.0.0
 PORT=8000
 
-# 处理配置
+# Processing Configuration
 MAX_UPLOAD_SIZE_MB=500
 PROXY_RESOLUTION=720
 DEFAULT_SEGMENT_DURATION=60
 
-# 日志级别
+# Log Level
 LOG_LEVEL=INFO
 ```
 
 ---
 
-## 🎬 使用流程
+## 🎬 Usage Workflow
 
 ```
-1. 上传视频
-   └─> 📤 Upload 页面上传 MP4/MOV 等视频文件
+1. Upload Video
+   └─> 📤 Upload MP4/MOV and other video files on Upload page
 
-2. 预处理
-   └─> ⚙️ Processing 页面生成代理/提取元数据
+2. Preprocess
+   └─> ⚙️ Generate proxy/extract metadata on Processing page
 
-3. 编辑剪辑
-   └─> ✂️ Editor 页面进行片段提取或粗剪
+3. Edit & Clip
+   └─> ✂️ Extract clips or rough cut on Editor page
 
-4. 查看结果
-   └─> 📁 Assets 页面管理输出文件
+4. View Results
+   └─> 📁 Manage output files on Assets page
 ```
 
 ---
 
-## 📂 目录说明
+## 📂 Directory Description
 
-| 目录 | 用途 |
-|------|------|
-| `uploads/` | 原始上传文件存储 |
-| `assets/` | 资产元数据 JSON 文件 |
-| `temp/` | 临时处理文件 |
-| `output/` | 最终输出文件 |
+| Directory | Purpose |
+|-----------|---------|
+| `uploads/` | Original uploaded files storage |
+| `assets/` | Asset metadata JSON files |
+| `temp/` | Temporary processing files |
+| `output/` | Final output files |
 
 ---
 
-## 📄 许可证
+## 📄 License
 
-本项目采用 MIT 许可证。
+This project is licensed under the MIT License.
 
 ---
 

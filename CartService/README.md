@@ -7,151 +7,153 @@
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15+-4169E1?style=flat-square&logo=postgresql&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)
 
-**高性能电商购物车微服务**
+**High-Performance E-commerce Shopping Cart Microservice**
 
-*基于 FastAPI + SQLAlchemy 2.0 异步架构，支持购物车全生命周期管理*
+*Based on FastAPI + SQLAlchemy 2.0 async architecture, supporting full shopping cart lifecycle management*
 
-- **开发过程记录**: [Agent&Chat.md](./docs/Agent&Chat.md)
+English | [中文](./README_zh.md) | [Русский](./README_ru.md) | [한국어](./README_ko.md) | [日本語](./README_ja.md)
+
+- **Development Log**: [Agent&Chat.md](./docs/Agent&Chat.md)
 
 </div>
 
 ---
 
-## ✨ 功能特性
+## ✨ Features
 
-- 🛒 **购物车管理** - 创建、查询、清空购物车
-- 📦 **商品操作** - 添加、更新数量、移除商品
-- 🔄 **购物车合并** - 支持匿名购物车与用户购物车合并
-- ⚡ **异步架构** - 基于 async/await 的高性能设计
-- 📊 **价格快照** - 记录商品加入时的单价
-
----
-
-## 🛠️ 技术栈
-
-| 技术 | 版本 | 用途 |
-|------|------|------|
-| Python | 3.10+ | 运行环境 |
-| FastAPI | 0.109+ | 高性能异步 Web 框架 |
-| PostgreSQL | 15+ | 关系型数据库 |
-| SQLAlchemy | 2.0+ | 异步 ORM |
-| Pydantic | v2 | 数据验证 |
-| Alembic | 1.13+ | 数据库迁移 |
+- 🛒 **Cart Management** - Create, query, and clear shopping carts
+- 📦 **Item Operations** - Add, update quantity, and remove items
+- 🔄 **Cart Merge** - Support merging anonymous cart with user cart
+- ⚡ **Async Architecture** - High-performance design based on async/await
+- 📊 **Price Snapshot** - Record unit price when item is added
 
 ---
 
-## 🏗️ 项目结构
+## 🛠️ Tech Stack
+
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| Python | 3.10+ | Runtime Environment |
+| FastAPI | 0.109+ | High-performance Async Web Framework |
+| PostgreSQL | 15+ | Relational Database |
+| SQLAlchemy | 2.0+ | Async ORM |
+| Pydantic | v2 | Data Validation |
+| Alembic | 1.13+ | Database Migration |
+
+---
+
+## 🏗️ Project Structure
 
 ```
 cart-service/
 ├── app/
-│   ├── api/v1/endpoints/    # API 路由层
-│   ├── core/                # 配置管理
-│   ├── db/                  # 数据库连接
-│   ├── models/              # ORM 模型
-│   ├── schemas/             # Pydantic 模型
-│   ├── services/            # 业务逻辑层
-│   └── main.py              # 应用入口
-├── alembic/                 # 数据库迁移脚本
-├── .env.example             # 环境变量模板
-├── alembic.ini              # Alembic 配置
-└── requirements.txt         # 依赖清单
+│   ├── api/v1/endpoints/    # API Routes
+│   ├── core/                # Configuration Management
+│   ├── db/                  # Database Connection
+│   ├── models/              # ORM Models
+│   ├── schemas/             # Pydantic Models
+│   ├── services/            # Business Logic Layer
+│   └── main.py              # Application Entry
+├── alembic/                 # Database Migration Scripts
+├── .env.example             # Environment Variables Template
+├── alembic.ini              # Alembic Configuration
+└── requirements.txt         # Dependencies
 ```
 
 ---
 
-## 🚀 快速开始
+## 🚀 Quick Start
 
-### 1. 安装依赖
+### 1. Install Dependencies
 
 ```bash
 cd projects/cart-service
 pip install -r requirements.txt
 ```
 
-### 2. 配置数据库
+### 2. Configure Database
 
-创建 PostgreSQL 数据库：
+Create PostgreSQL database:
 
 ```sql
 CREATE DATABASE cart_db;
 ```
 
-配置环境变量：
+Configure environment variables:
 
 ```bash
 copy .env.example .env
-# 编辑 .env 文件，设置正确的数据库连接信息
+# Edit .env file and set correct database connection info
 ```
 
-### 3. 数据库迁移
+### 3. Database Migration
 
 ```bash
 alembic upgrade head
 ```
 
-### 4. 启动服务
+### 4. Start Service
 
 ```bash
 uvicorn app.main:app --reload
 ```
 
-### 5. 访问 API
+### 5. Access API
 
-- **Swagger 文档**: http://127.0.0.1:8000/docs
-- **ReDoc 文档**: http://127.0.0.1:8000/redoc
-- **健康检查**: http://127.0.0.1:8000/health
-
----
-
-## 📡 API 接口
-
-| 方法 | 路径 | 说明 |
-|------|------|------|
-| GET | `/api/v1/carts/{cart_id}` | 获取购物车详情 |
-| POST | `/api/v1/carts` | 创建购物车 |
-| POST | `/api/v1/carts/{cart_id}/items` | 添加商品 |
-| PATCH | `/api/v1/carts/{cart_id}/items/{item_id}` | 更新商品数量 |
-| DELETE | `/api/v1/carts/{cart_id}/items/{item_id}` | 移除商品 |
-| DELETE | `/api/v1/carts/{cart_id}` | 清空购物车 |
-| POST | `/api/v1/carts/{cart_id}/merge` | 合并购物车 |
+- **Swagger Docs**: http://127.0.0.1:8000/docs
+- **ReDoc Docs**: http://127.0.0.1:8000/redoc
+- **Health Check**: http://127.0.0.1:8000/health
 
 ---
 
-## 🗃️ 数据模型
+## 📡 API Endpoints
 
-### carts 表
-
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| id | UUID | 主键 |
-| user_id | UUID | 用户 ID (可为空) |
-| status | VARCHAR | 状态 |
-| created_at | DATETIME | 创建时间 |
-| updated_at | DATETIME | 更新时间 |
-
-### cart_items 表
-
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| id | UUID | 主键 |
-| cart_id | UUID | 购物车 ID |
-| product_id | VARCHAR | 商品 SKU |
-| quantity | INTEGER | 数量 |
-| unit_price | DECIMAL | 单价 |
-| added_at | DATETIME | 添加时间 |
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/api/v1/carts/{cart_id}` | Get cart details |
+| POST | `/api/v1/carts` | Create cart |
+| POST | `/api/v1/carts/{cart_id}/items` | Add item |
+| PATCH | `/api/v1/carts/{cart_id}/items/{item_id}` | Update item quantity |
+| DELETE | `/api/v1/carts/{cart_id}/items/{item_id}` | Remove item |
+| DELETE | `/api/v1/carts/{cart_id}` | Clear cart |
+| POST | `/api/v1/carts/{cart_id}/merge` | Merge carts |
 
 ---
 
-## 📖 开发文档
+## 🗃️ Data Models
 
-- [AI Agent 开发指南](./Agent.md) - 技术栈约束和开发规范
+### carts Table
+
+| Field | Type | Description |
+|-------|------|-------------|
+| id | UUID | Primary Key |
+| user_id | UUID | User ID (nullable) |
+| status | VARCHAR | Status |
+| created_at | DATETIME | Creation Time |
+| updated_at | DATETIME | Update Time |
+
+### cart_items Table
+
+| Field | Type | Description |
+|-------|------|-------------|
+| id | UUID | Primary Key |
+| cart_id | UUID | Cart ID |
+| product_id | VARCHAR | Product SKU |
+| quantity | INTEGER | Quantity |
+| unit_price | DECIMAL | Unit Price |
+| added_at | DATETIME | Added Time |
 
 ---
 
-## 📄 许可证
+## 📖 Development Documentation
 
-本项目采用 MIT 许可证。
+- [AI Agent Development Guide](./Agent.md) - Tech stack constraints and development standards
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License.
 
 ---
 

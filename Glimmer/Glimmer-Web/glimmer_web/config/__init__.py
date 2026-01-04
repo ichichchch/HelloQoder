@@ -1,4 +1,4 @@
-"""GLIMMER Web configuration module."""
+"""GLIMMER configuration module."""
 
 from glimmer_web.config.prompts import SYSTEM_PROMPT, get_system_prompt
 from glimmer_web.config.timing import TIMING_CONFIG

@@ -1,8 +1,10 @@
 """
-GLIMMER Web - GUI Automation Agent Backend
+GLIMMER - GUI Automation Agent powered by Vision-Language Models.
 
 GLIMMER is an intelligent GUI Agent that can perceive computer/mobile screens
 and perform precise actions to help users achieve their goals.
+
+Based on the Open-AutoGLM framework, extended for desktop/browser automation.
 """
 
 from glimmer_web.agent import GlimmerAgent, AgentConfig

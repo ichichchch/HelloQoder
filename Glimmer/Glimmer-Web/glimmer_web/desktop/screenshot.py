@@ -20,7 +20,7 @@ class Screenshot:
     width: int
     height: int
     base64_data: str
-    image: Optional[any] = None
+    image: Optional[any] = None  # PIL Image object
     
     @classmethod
     def from_pil_image(cls, img: "Image.Image") -> "Screenshot":
@@ -28,14 +28,36 @@ class Screenshot:
         buffered = io.BytesIO()
         img.save(buffered, format="PNG")
         base64_data = base64.b64encode(buffered.getvalue()).decode("utf-8")
-        return cls(width=img.width, height=img.height, base64_data=base64_data, image=img)
+        
+        return cls(
+            width=img.width,
+            height=img.height,
+            base64_data=base64_data,
+            image=img,
+        )
 
 
 def get_screenshot(region: Optional[tuple[int, int, int, int]] = None) -> Screenshot:
-    """Capture a screenshot of the screen."""
-    if not PYAUTOGUI_AVAILABLE:
-        raise RuntimeError("pyautogui is not installed. pip install pyautogui pillow")
+    """
+    Capture a screenshot of the screen.
     
+    Args:
+        region: Optional tuple of (left, top, width, height) for partial capture.
+                If None, captures the entire screen.
+    
+    Returns:
+        Screenshot object containing the captured image data.
+    
+    Raises:
+        RuntimeError: If pyautogui is not available.
+    """
+    if not PYAUTOGUI_AVAILABLE:
+        raise RuntimeError(
+            "pyautogui is not installed. "
+            "Please install it with: pip install pyautogui pillow"
+        )
+    
+    # Capture screenshot
     if region:
         img = pyautogui.screenshot(region=region)
     else:
@@ -45,7 +67,13 @@ def get_screenshot(region: Optional[tuple[int, int, int, int]] = None) -> Screen
 
 
 def get_screen_size() -> tuple[int, int]:
-    """Get the screen dimensions."""
+    """
+    Get the screen dimensions.
+    
+    Returns:
+        Tuple of (width, height) in pixels.
+    """
     if not PYAUTOGUI_AVAILABLE:
         raise RuntimeError("pyautogui is not installed.")
+    
     return pyautogui.size()

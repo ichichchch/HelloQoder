@@ -1,4 +1,4 @@
-"""GLIMMER Web action handling module."""
+"""GLIMMER action handling module."""
 
 from glimmer_web.actions.handler import ActionHandler, ActionResult, parse_action
 

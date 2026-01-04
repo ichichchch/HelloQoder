@@ -1,4 +1,4 @@
-"""GLIMMER Web model client module."""
+"""GLIMMER model client module."""
 
 from glimmer_web.model.client import ModelClient, ModelConfig, ModelResponse, MessageBuilder
 

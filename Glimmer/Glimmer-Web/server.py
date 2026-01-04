@@ -13,9 +13,9 @@ import traceback
 # Add parent directory to path
 sys.path.insert(0, ".")
 
-from glimmer_web import GlimmerAgent, AgentConfig
-from glimmer_web.model.client import ModelConfig
-from glimmer_web.desktop.screenshot import get_screenshot
+from core import GlimmerAgent, AgentConfig
+from core.model.client import ModelConfig
+from core.desktop.screenshot import get_screenshot
 
 
 class GlimmerAPIHandler(BaseHTTPRequestHandler):

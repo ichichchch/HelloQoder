@@ -16,8 +16,8 @@ import webbrowser
 from dataclasses import dataclass
 from typing import Any, Callable, Literal, Optional
 
-from glimmer_web.config.timing import TIMING_CONFIG
-from glimmer_web.desktop import (
+from core.config.timing import TIMING_CONFIG
+from core.desktop import (
     click,
     double_click,
     right_click,

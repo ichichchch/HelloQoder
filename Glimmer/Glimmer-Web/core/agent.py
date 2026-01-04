@@ -14,10 +14,10 @@ import traceback
 from dataclasses import dataclass, field
 from typing import Any, Callable, Optional
 
-from glimmer_web.actions.handler import ActionHandler, ActionResult, parse_action
-from glimmer_web.config.prompts import get_system_prompt
-from glimmer_web.desktop.screenshot import get_screenshot
-from glimmer_web.model.client import ModelClient, ModelConfig, MessageBuilder
+from core.actions.handler import ActionHandler, ActionResult, parse_action
+from core.config.prompts import get_system_prompt
+from core.desktop.screenshot import get_screenshot
+from core.model.client import ModelClient, ModelConfig, MessageBuilder
 
 
 @dataclass
@@ -71,8 +71,8 @@ class GlimmerAgent:
         confirmation_callback: Optional callback for sensitive action confirmation.
     
     Example:
-        >>> from glimmer_web import GlimmerAgent
-        >>> from glimmer_web.model import ModelConfig
+        >>> from core import GlimmerAgent
+        >>> from core.model import ModelConfig
         >>>
         >>> model_config = ModelConfig(base_url="http://localhost:8000/v1")
         >>> agent = GlimmerAgent(model_config)

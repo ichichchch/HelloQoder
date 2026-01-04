@@ -1,7 +1,7 @@
 """Desktop automation module for GLIMMER."""
 
-from glimmer_web.desktop.screenshot import get_screenshot, Screenshot
-from glimmer_web.desktop.input import (
+from core.desktop.screenshot import get_screenshot, Screenshot
+from core.desktop.input import (
     click,
     double_click,
     right_click,

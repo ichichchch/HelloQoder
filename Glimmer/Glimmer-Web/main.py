@@ -3,8 +3,8 @@ GLIMMER Web CLI - Command line interface for GLIMMER Agent.
 """
 
 import argparse
-from glimmer_web import GlimmerAgent, AgentConfig
-from glimmer_web.model.client import ModelConfig
+from core import GlimmerAgent, AgentConfig
+from core.model.client import ModelConfig
 
 
 def main():

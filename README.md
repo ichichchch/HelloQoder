@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![Projects](https://img.shields.io/badge/Projects-7-blue?style=flat-square)
+![Projects](https://img.shields.io/badge/Projects-6-blue?style=flat-square)
 ![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=flat-square&logo=python&logoColor=white)
 ![.NET](https://img.shields.io/badge/.NET-9.0%20|%2010.0-512BD4?style=flat-square&logo=dotnet)
 ![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
@@ -21,7 +21,6 @@ English | [中文](./README_zh.md) | [Русский](./README_ru.md) | [한국�
 
 | Project | Description | Tech Stack | Status |
 |---------|-------------|------------|--------|
-| [ALAgent](./ALAgent/) | Autonomous Coding Agent VS Code Extension | .NET 10, TypeScript, Python, LightRAG | ✅ Active |
 | [Glimmer](./Glimmer/) | Desktop & Mobile AI Automation Agent | Vue 3, Python, Zhipu GLM-4V | ✅ Active |
 | [CartService](./CartService/) | E-commerce Shopping Cart Microservice | FastAPI, PostgreSQL, SQLAlchemy | ✅ Active |
 | [NovelTTSApp](./NovelTTSApp/) | Novel to Audiobook AI Application | .NET 10, Zhipu GLM-TTS, NAudio | ✅ Active |
@@ -35,12 +34,6 @@ English | [中文](./README_zh.md) | [Русский](./README_ru.md) | [한국�
 
 ```
 HelloQoder/
-├── ALAgent/                 # 🤖 Autonomous Coding Agent
-│   ├── frontend-extension/  # VS Code Extension
-│   ├── backend-agent/       # .NET Reasoning Engine
-│   ├── backend-rag/         # Python RAG Service
-│   └── README.md            # Project Documentation
-│
 ├── Glimmer/                 # 🖥️ Desktop AI Automation
 │   ├── Glimmer-UI/          # Vue 3 Frontend
 │   ├── Glimmer-Web/         # Python Backend
@@ -81,17 +74,6 @@ HelloQoder/
 ---
 
 ## ✨ Quick Navigation
-
-### 🤖 ALAgent
-
-Autonomous Coding Agent VS Code Extension, built on Microsoft Agent Framework + LangChain + LightRAG architecture.
-
-- **Tech Stack**: TypeScript 5.0+ / .NET 10 / Python 3.11+ / LangChain / LightRAG
-- **Features**: Intelligent Chat, Code Retrieval, File Operations, Code Analysis, Knowledge Graph Enhanced Retrieval
-- **Architecture**: VS Code Extension + .NET Agent + Python RAG Service
-- **Documentation**: [View Details](./ALAgent/README.md)
-
----
 
 ### 🖥️ Glimmer
 

@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![Projects](https://img.shields.io/badge/Projects-7-blue?style=flat-square)
+![Projects](https://img.shields.io/badge/Projects-6-blue?style=flat-square)
 ![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=flat-square&logo=python&logoColor=white)
 ![.NET](https://img.shields.io/badge/.NET-9.0%20|%2010.0-512BD4?style=flat-square&logo=dotnet)
 ![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
@@ -21,7 +21,6 @@
 
 | プロジェクト | 説明 | 技術スタック | ステータス |
 |--------------|------|--------------|------------|
-| [ALAgent](./ALAgent/) | 自律コーディングエージェント VS Code 拡張機能 | .NET 10, TypeScript, Python, LightRAG | ✅ Active |
 | [Glimmer](./Glimmer/) | デスクトップ＆モバイル AI 自動化エージェント | Vue 3, Python, Zhipu GLM-4V | ✅ Active |
 | [CartService](./CartService/) | E コマースショッピングカートマイクロサービス | FastAPI, PostgreSQL, SQLAlchemy | ✅ Active |
 | [NovelTTSApp](./NovelTTSApp/) | 小説をオーディオブックに変換する AI アプリ | .NET 10, Zhipu GLM-TTS, NAudio | ✅ Active |
@@ -35,12 +34,6 @@
 
 ```
 HelloQoder/
-├── ALAgent/                 # 🤖 自律コーディングエージェント
-│   ├── frontend-extension/  # VS Code 拡張機能
-│   ├── backend-agent/       # .NET 推論エンジン
-│   ├── backend-rag/         # Python RAG サービス
-│   └── README.md            # プロジェクトドキュメント
-│
 ├── Glimmer/                 # 🖥️ デスクトップ AI 自動化
 │   ├── Glimmer-UI/          # Vue 3 フロントエンド
 │   ├── Glimmer-Web/         # Python バックエンド
@@ -81,17 +74,6 @@ HelloQoder/
 ---
 
 ## ✨ クイックナビゲーション
-
-### 🤖 ALAgent
-
-自律コーディングエージェント VS Code 拡張機能、Microsoft Agent Framework + LangChain + LightRAG アーキテクチャ。
-
-- **技術スタック**: TypeScript 5.0+ / .NET 10 / Python 3.11+ / LangChain / LightRAG
-- **機能**: インテリジェントチャット、コード検索、ファイル操作、コード分析、知識グラフ強化検索
-- **アーキテクチャ**: VS Code 拡張機能 + .NET エージェント + Python RAG サービス
-- **ドキュメント**: [詳細を見る](./ALAgent/README.md)
-
----
 
 ### 🖥️ Glimmer
 

@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![Projects](https://img.shields.io/badge/Projects-7-blue?style=flat-square)
+![Projects](https://img.shields.io/badge/Projects-6-blue?style=flat-square)
 ![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=flat-square&logo=python&logoColor=white)
 ![.NET](https://img.shields.io/badge/.NET-9.0%20|%2010.0-512BD4?style=flat-square&logo=dotnet)
 ![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
@@ -21,7 +21,6 @@
 
 | 프로젝트 | 설명 | 기술 스택 | 상태 |
 |----------|------|-----------|------|
-| [ALAgent](./ALAgent/) | 자율 코딩 에이전트 VS Code 확장 | .NET 10, TypeScript, Python, LightRAG | ✅ Active |
 | [Glimmer](./Glimmer/) | 데스크탑 및 모바일 AI 자동화 에이전트 | Vue 3, Python, Zhipu GLM-4V | ✅ Active |
 | [CartService](./CartService/) | 이커머스 장바구니 마이크로서비스 | FastAPI, PostgreSQL, SQLAlchemy | ✅ Active |
 | [NovelTTSApp](./NovelTTSApp/) | 소설을 오디오북으로 변환하는 AI 앱 | .NET 10, Zhipu GLM-TTS, NAudio | ✅ Active |
@@ -35,12 +34,6 @@
 
 ```
 HelloQoder/
-├── ALAgent/                 # 🤖 자율 코딩 에이전트
-│   ├── frontend-extension/  # VS Code 확장
-│   ├── backend-agent/       # .NET 추론 엔진
-│   ├── backend-rag/         # Python RAG 서비스
-│   └── README.md            # 프로젝트 문서
-│
 ├── Glimmer/                 # 🖥️ 데스크탑 AI 자동화
 │   ├── Glimmer-UI/          # Vue 3 프론트엔드
 │   ├── Glimmer-Web/         # Python 백엔드
@@ -81,17 +74,6 @@ HelloQoder/
 ---
 
 ## ✨ 빠른 탐색
-
-### 🤖 ALAgent
-
-자율 코딩 에이전트 VS Code 확장, Microsoft Agent Framework + LangChain + LightRAG 아키텍처 기반.
-
-- **기술 스택**: TypeScript 5.0+ / .NET 10 / Python 3.11+ / LangChain / LightRAG
-- **기능**: 지능형 채팅, 코드 검색, 파일 작업, 코드 분석, 지식 그래프 강화 검색
-- **아키텍처**: VS Code 확장 + .NET 에이전트 + Python RAG 서비스
-- **문서**: [자세히 보기](./ALAgent/README.md)
-
----
 
 ### 🖥️ Glimmer
 

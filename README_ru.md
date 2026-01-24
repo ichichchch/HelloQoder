@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![Projects](https://img.shields.io/badge/Projects-7-blue?style=flat-square)
+![Projects](https://img.shields.io/badge/Projects-6-blue?style=flat-square)
 ![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=flat-square&logo=python&logoColor=white)
 ![.NET](https://img.shields.io/badge/.NET-9.0%20|%2010.0-512BD4?style=flat-square&logo=dotnet)
 ![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
@@ -21,7 +21,6 @@
 
 | Проект | Описание | Технологии | Статус |
 |--------|----------|------------|--------|
-| [ALAgent](./ALAgent/) | Автономный агент программирования для VS Code | .NET 10, TypeScript, Python, LightRAG | ✅ Active |
 | [Glimmer](./Glimmer/) | Агент автоматизации для десктопа и мобильных | Vue 3, Python, Zhipu GLM-4V | ✅ Active |
 | [CartService](./CartService/) | Микросервис корзины покупок для e-commerce | FastAPI, PostgreSQL, SQLAlchemy | ✅ Active |
 | [NovelTTSApp](./NovelTTSApp/) | AI-приложение для преобразования романов в аудиокниги | .NET 10, Zhipu GLM-TTS, NAudio | ✅ Active |
@@ -35,12 +34,6 @@
 
 ```
 HelloQoder/
-├── ALAgent/                 # 🤖 Автономный агент программирования
-│   ├── frontend-extension/  # Расширение VS Code
-│   ├── backend-agent/       # .NET движок рассуждений
-│   ├── backend-rag/         # Python RAG сервис
-│   └── README.md            # Документация
-│
 ├── Glimmer/                 # 🖥️ Автоматизация десктопа с AI
 │   ├── Glimmer-UI/          # Vue 3 Frontend
 │   ├── Glimmer-Web/         # Python Backend
@@ -81,17 +74,6 @@ HelloQoder/
 ---
 
 ## ✨ Быстрая навигация
-
-### 🤖 ALAgent
-
-Автономный агент программирования для VS Code, построенный на архитектуре Microsoft Agent Framework + LangChain + LightRAG.
-
-- **Технологии**: TypeScript 5.0+ / .NET 10 / Python 3.11+ / LangChain / LightRAG
-- **Функции**: Интеллектуальный чат, Поиск кода, Файловые операции, Анализ кода, Улучшенный поиск с графом знаний
-- **Архитектура**: Расширение VS Code + .NET Agent + Python RAG сервис
-- **Документация**: [Подробнее](./ALAgent/README.md)
-
----
 
 ### 🖥️ Glimmer
 
